@@ -1,5 +1,6 @@
+import Navigation from "@/components/navigation/navbar";
 import type { Metadata } from "next";
-import "./globals.css";
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: "Next-Guard",
@@ -12,10 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-          {children}
-      </body>
-    </html>
+    <div className="container mx-auto p-4">
+      <Navigation />
+      {children}
+    </div>
   );
 }
