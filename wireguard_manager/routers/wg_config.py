@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from .auth import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 import os
 import subprocess
 import nacl
+from jose import JWTError, jwt
 from nacl.public import PrivateKey
 from models.wg_models import WGConfig, WGInterface, WGPeer
 from datetime import datetime
@@ -10,6 +13,22 @@ router = APIRouter()
 
 # CONFIG_PATH = "/etc/wireguard/wg0.conf"  # Make sure this path is correct and writable
 CONFIG_PATH = "./test_data/wg0.conf"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def _check_token(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
 
 @router.get("/generate-config")
 async def generate_config():
@@ -39,8 +58,11 @@ async def read_config():
                             detail="Could not read WireGuard configuration")
 
 @router.get("/list-peers")
-async def list_peers():
+async def list_peers(token: str = Depends(oauth2_scheme)):
+    _check_token(token)
+
     peers = []
+
     try:
         with open(CONFIG_PATH, "r") as config_file:
             lines = config_file.readlines()

@@ -39,9 +39,15 @@ export default function WireGuardDashboard() {
   }
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
+
     async function fetchClients() {
       try {
-        const response = await axios.get('http://localhost:8000/wireguard/config/list-peers')
+        const response = await axios.get('http://localhost:8000/wireguard/config/list-peers', {
+          headers: {
+            'Authorization': 'Bearer ' + token,
+          }
+        })
         setClients(response.data.peers)
       } catch (error) {
         console.error("Failed to fetch clients:", error)
