@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import Link from 'next/link'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,6 +41,13 @@ export default function LoginForm() {
       console.log("Login attempted with:", { username, password })
     }
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/');
+    }
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

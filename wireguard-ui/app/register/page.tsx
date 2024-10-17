@@ -1,7 +1,8 @@
 "use client"
 
 import Link from 'next/link'
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
+  const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,6 +34,13 @@ export default function RegisterForm() {
       // You would typically make an API call here to register the user
     }
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/');
+    }
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
