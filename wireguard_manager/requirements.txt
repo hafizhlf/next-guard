@@ -1,0 +1,7 @@
+fastapi[all]
+pydantic
+uvicorn
+sqlalchemy
+databases
+pynacl
+python-jose[cryptography]
