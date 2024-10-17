@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertCircle, ChevronDown, LogIn, LogOut, Plus, RefreshCw, Settings, UserPlus, Users } from "lucide-react"
+import { ChevronDown, LogIn, LogOut, UserPlus, Users } from "lucide-react"
 
 const Navbar = () => {
   const [username, setUsername] = useState("")

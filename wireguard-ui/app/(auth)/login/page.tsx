@@ -37,6 +37,7 @@ export default function LoginForm() {
         router.push('/')
       } catch (e) {
         setError('Invalid credentials');
+        console.log(e)
       }
       console.log("Login attempted with:", { username, password })
     }
