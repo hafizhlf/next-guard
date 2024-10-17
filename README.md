@@ -33,7 +33,7 @@
 1. Clone the repository:
 ```bash
    git clone https://github.com/yourusername/wireguard-manager.git
-   cd wireguard-manager/backend
+   cd wireguard-manager
    ```
 2. Create a virtual environment:
 ```bash
@@ -53,7 +53,7 @@
 
 1.  Go to the frontend directory:
 ```bash
-   cd ../frontend
+   cd ../wireguard-ui
    ```
 2. Install dependencies:
 ```bash
