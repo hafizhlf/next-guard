@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -140,7 +141,9 @@ export default function UserManagement() {
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={addUser}>Add User</Button>
+                <DialogClose asChild>
+                  <Button onClick={addUser}>Add User</Button>
+                </DialogClose>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -164,7 +167,7 @@ export default function UserManagement() {
                   <div className="flex space-x-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" onClick={(e) => editUser(user.id)}>
+                        <Button variant="outline" size="icon" onClick={() => editUser(user.id)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -215,7 +218,9 @@ export default function UserManagement() {
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button onClick={updateUser}>Update User</Button>
+                          <DialogClose asChild>
+                            <Button onClick={updateUser}>Update User</Button>
+                          </DialogClose>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
