@@ -38,7 +38,7 @@ export default function RegisterForm() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
-          <CardDescription className="text-center">Sign up for WireGuard Dashboard</CardDescription>
+          <CardDescription className="text-center">Sign up for Next-Guard Account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
