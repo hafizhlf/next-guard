@@ -1,4 +1,3 @@
-
 # Next Guard
 
 ## Overview
@@ -64,8 +63,7 @@
 ```bash
    npm run dev
    ```
-5. The frontend will be available at `http://localhost:3000`.
-
+4. The frontend will be available at `http://localhost:3000`.
 
 ## Usage
 
