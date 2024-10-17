@@ -3,7 +3,8 @@ import os
 import subprocess
 import nacl
 from nacl.public import PrivateKey
-from models.wg_models import WGConfig, WGInterface, WGPeer # Import the models
+from models.wg_models import WGConfig, WGInterface, WGPeer
+from datetime import datetime
 
 router = APIRouter()
 
@@ -13,10 +14,13 @@ CONFIG_PATH = "./test_data/wg0.conf"
 @router.get("/generate-config")
 async def generate_config():
     private_key = await _generate_wireguard_private_key()
-    interface = WGInterface(private_key=private_key, address="10.0.0.1/24", listen_port="51820")
     public_key = await _generate_wireguard_private_key()
-    peer = WGPeer(allowed_ips="10.0.0.2/32", public_key=public_key)
-    config = WGConfig(interface=interface, peers=[peer])
+    config = WGConfig(
+        interface=WGInterface(name="Host 1", private_key=private_key, address="10.0.0.1/24", listen_port="51820"),
+        peers=[
+            WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now()),
+            WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now())
+        ])
     res = await _generate_config(config=config)
     return res
 
@@ -49,6 +53,15 @@ async def list_peers():
         print(f"Failed to read config: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail="Could not read WireGuard configuration")
+
+    public_key = await _generate_wireguard_private_key()
+    peers = [
+        WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now()),
+        WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now())
+    ]
+
+    for peer in peers:
+        peer.lastSeen = peer.lastSeen.strftime("%A, %B %d, %Y %H:%M:%S")
 
     return {"peers": peers}
 

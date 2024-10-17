@@ -18,12 +18,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { AlertCircle, ChevronDown, LogIn, LogOut, Plus, RefreshCw, Settings, UserPlus, Users } from "lucide-react"
 
-export default function WireGuardDashboard() {
-  const [clients, setClients] = useState([
-    { id: 1, name: "Client 1", ip: "10.0.0.2", lastSeen: "2023-05-15 10:30" },
-    { id: 2, name: "Client 2", ip: "10.0.0.3", lastSeen: "2023-05-15 11:45" },
-  ])
+interface Client {
+  id: number
+  name: string
+  ip_address: string
+  lastSeen: string
+}
 
+export default function WireGuardDashboard() {
+  const [clients, setClients] = useState<Client[]>([])
   const [newClientName, setNewClientName] = useState("")
   const [username, setUsername] = useState("")
   const [fullname, setfullname] = useState("")
@@ -36,7 +39,7 @@ export default function WireGuardDashboard() {
         {
           id: clients.length + 1,
           name: newClientName,
-          ip: `10.0.0.${clients.length + 2}`,
+          ip_address: `10.0.0.${clients.length + 2}`,
           lastSeen: "Never",
         },
       ])
@@ -74,6 +77,16 @@ export default function WireGuardDashboard() {
       }
     }
 
+    async function fetchClients() {
+      try {
+        const response = await axios.get('http://localhost:8000/wireguard/config/list-peers')
+        setClients(response.data.peers)
+      } catch (error) {
+        console.error("Failed to fetch clients:", error)
+      }
+    }
+
+    fetchClients()
     checkToken()
   }, [])
 
@@ -155,7 +168,7 @@ export default function WireGuardDashboard() {
                   {clients.map((client) => (
                     <TableRow key={client.id}>
                       <TableCell>{client.name}</TableCell>
-                      <TableCell>{client.ip}</TableCell>
+                      <TableCell>{client.ip_address}</TableCell>
                       <TableCell>{client.lastSeen}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm">
@@ -197,10 +210,17 @@ export default function WireGuardDashboard() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
+                  <Label htmlFor="serverIP">Server IP</Label>
+                  <p className="text-sm text-muted-foreground">The IP address of the WireGuard server used for client connections.</p>
+                </div>
+                <Input id="serverIP" className="w-[200px]" defaultValue="10.0.0.1" readOnly disabled/>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
                   <Label htmlFor="serverPort">Server Port</Label>
                   <p className="text-sm text-muted-foreground">The port your WireGuard server listens on</p>
                 </div>
-                <Input id="serverPort" className="w-[100px]" defaultValue="51820" />
+                <Input id="serverPort" className="w-[200px]" defaultValue="51820" />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
