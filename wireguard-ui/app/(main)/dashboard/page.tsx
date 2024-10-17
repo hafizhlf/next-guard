@@ -50,7 +50,11 @@ export default function WireGuardDashboard() {
         })
         setClients(response.data.peers)
       } catch (error) {
-        console.error("Failed to fetch clients:", error)
+        if (axios.isAxiosError(error)) {
+          console.warn("Unauthorized access.")
+        } else {
+          console.error("An error occurred:", error)
+        }
       }
     }
 

@@ -1,12 +1,5 @@
 import Navigation from "@/components/navigation/navbar";
-import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster"
-import "@/app/globals.css";
-
-export const metadata: Metadata = {
-  title: "Next-Guard",
-  description: "Next-Guard Wireguard Manager",
-};
 
 export default function RootLayout({
   children,
