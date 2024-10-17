@@ -37,8 +37,8 @@ async def generate_config():
     config = WGConfig(
         interface=WGInterface(name="Host 1", private_key=private_key, address="10.0.0.1/24", listen_port="51820"),
         peers=[
-            WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now()),
-            WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now())
+            WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now().strftime("%A, %B %d, %Y %H:%M:%S")),
+            WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now().strftime("%A, %B %d, %Y %H:%M:%S"))
         ])
     res = await _generate_config(config=config)
     return res
@@ -78,12 +78,9 @@ async def list_peers(token: str = Depends(oauth2_scheme)):
 
     public_key = await _generate_wireguard_private_key()
     peers = [
-        WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now()),
-        WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now())
+        WGPeer(id=1, name="Client 1", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.2", lastSeen=datetime.now().strftime("%A, %B %d, %Y %H:%M:%S")),
+        WGPeer(id=2, name="Client 2", allowed_ips="10.0.0.0/24", public_key=public_key, ip_address="10.0.0.3", lastSeen=datetime.now().strftime("%A, %B %d, %Y %H:%M:%S"))
     ]
-
-    for peer in peers:
-        peer.lastSeen = peer.lastSeen.strftime("%A, %B %d, %Y %H:%M:%S")
 
     return {"peers": peers}
 

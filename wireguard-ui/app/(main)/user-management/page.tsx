@@ -53,6 +53,11 @@ export default function UserManagement() {
     }
   }
 
+  const editUser = (id: number) => {
+    const userToEdit = users.find(user => user.id === id);
+    setEditingUser(userToEdit || null);
+  }
+
   const updateUser = () => {
     if (editingUser) {
       setUsers(users.map(user => user.id === editingUser.id ? editingUser : user))
@@ -159,7 +164,7 @@ export default function UserManagement() {
                   <div className="flex space-x-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon">
+                        <Button variant="outline" size="icon" onClick={(e) => editUser(user.id)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>

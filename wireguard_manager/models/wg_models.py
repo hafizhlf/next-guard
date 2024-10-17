@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import List
-from datetime import datetime
 
 class WGInterface(BaseModel):
     name: str
@@ -15,7 +14,7 @@ class WGPeer(BaseModel):
     public_key: str
     allowed_ips: str
     ip_address: str
-    lastSeen: datetime
+    lastSeen: str
 
 
 class WGConfig(BaseModel):
