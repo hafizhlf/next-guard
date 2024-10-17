@@ -82,7 +82,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    return {"username": username}
+    return {
+        "username": username,
+        "fullname": fake_users_db.get(username).get('full_name')
+    }
 
 @router.get("/secure-endpoint")
 async def secure_endpoint(current_user: dict = Depends(get_current_user)):

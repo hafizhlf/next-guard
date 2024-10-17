@@ -26,6 +26,7 @@ export default function WireGuardDashboard() {
 
   const [newClientName, setNewClientName] = useState("")
   const [username, setUsername] = useState("")
+  const [fullname, setfullname] = useState("")
 
   const addClient = (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +53,7 @@ export default function WireGuardDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token")
 
-    async function check_token() {
+    async function checkToken() {
       if (token) {
         try {
           const response = await axios.get('http://localhost:8000/auth/secure-endpoint', {
@@ -61,13 +62,19 @@ export default function WireGuardDashboard() {
             }
           })
           setUsername(response.data.user.username)
+          setfullname(response.data.user.fullname)
         } catch (error) {
-          console.error("Invalid token:", error)
+          if (axios.isAxiosError(error)) {
+            console.warn("Unauthorized access. Please log in again.")
+            localStorage.removeItem("token")
+          } else {
+            console.error("An error occurred:", error)
+          }
         }
       }
     }
 
-    check_token()
+    checkToken()
   }, [])
 
   return (
@@ -79,7 +86,7 @@ export default function WireGuardDashboard() {
             <Button variant="outline">
               {username ? (
                 <>
-                  {username} <ChevronDown className="ml-2 h-4 w-4" />
+                  {fullname} <ChevronDown className="ml-2 h-4 w-4" />
                 </>
               ) : (
                 <>
