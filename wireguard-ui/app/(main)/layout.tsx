@@ -1,5 +1,6 @@
 import Navigation from "@/components/navigation/navbar";
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster"
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
     <div className="container mx-auto p-4">
       <Navigation />
       {children}
+      <Toaster />
     </div>
   );
 }
