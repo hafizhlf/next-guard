@@ -51,22 +51,23 @@ export default function WireGuardDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token")
-    if (token) {
-      try {
-        axios.get('http://localhost:8000/auth/secure-endpoint', {
-          headers: {
-            'Authorization': 'Bearer ' + token,
-          }
-        }).then((response) => {
+
+    async function check_token() {
+      if (token) {
+        try {
+          const response = await axios.get('http://localhost:8000/auth/secure-endpoint', {
+            headers: {
+              'Authorization': 'Bearer ' + token,
+            }
+          })
           setUsername(response.data.user.username)
-        }).catch((error) => {
-          console.error("Error validating token:", error)
-          setUsername("")
-        })
-      } catch (error) {
-        console.error("Invalid token:", error)
+        } catch (error) {
+          console.error("Invalid token:", error)
+        }
       }
     }
+
+    check_token()
   }, [])
 
   return (
