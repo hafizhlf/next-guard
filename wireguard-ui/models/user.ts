@@ -1,12 +1,14 @@
-// models/user.ts
+// src/models/user.ts
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '@/config/database';
+import { sequelize } from '../config/database';
 
 class User extends Model {
   public id!: number;
   public username!: string;
   public password!: string;
   public name!: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 User.init({
@@ -31,6 +33,7 @@ User.init({
 }, {
   sequelize,
   modelName: 'User',
+  tableName: 'Users', // Make sure this matches your migration
 });
 
 export default User;

@@ -1,8 +1,9 @@
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from 'bcryptjs'
-import User from '@/models/user'
-import { initDatabase } from '@/lib/db'
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from 'bcryptjs';
+import { connectDatabase } from '@/lib/db';
+import models from '@/models';
 
 const handler = NextAuth({
   providers: [
@@ -13,54 +14,66 @@ const handler = NextAuth({
         username: { label: "Username", type: "text", placeholder: "jsmith" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, _req) {
-        initDatabase()
+      async authorize(credentials) {
         try {
+          // Ensure database connection
+          await connectDatabase();
+
           if (!credentials?.username || !credentials?.password) {
-            return null
+            throw new Error('Missing credentials');
           }
 
-          const user = await User.findOne({
-            where: {
-              username: credentials.username
-            }
+          // Find user
+          const user = await models.User.findOne({
+            where: { username: credentials.username }
           });
 
           if (!user) {
-            return null
+            throw new Error('User not found');
           }
 
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
+          const dbPassword = user.get('password') as string;
 
-          if (!isPasswordValid) {
-            return null
+          // Verify password
+          const isValid = await bcrypt.compare(credentials.password, dbPassword);
+
+          if (!isValid) {
+            throw new Error('Invalid password');
           }
+
+          // Return user data (excluding password)
+          const userObject = user.get({ plain: true });
+          delete userObject.password;
 
           return {
-            id: user.id.toString(),
-            username: user.username,
-            name: user.name
+            id: userObject.id.toString(),
+            username: userObject.username,
+            name: userObject.name
           }
         } catch (error) {
-          console.error('Auth error:', error)
-          return null
+          console.error('Authentication error:', error);
+          return null;
         }
-        // const user = credentials?.username
-        // const password = credentials?.password
-        // if (user == "johndoe" && password == "password"){
-        //   return {
-        //     "id": "10",
-        //     "username": user,
-        //     "name": "Hafizh Ibnu Syam"
-        //   }
-        // }
-        // return null
       }
     })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+        token.name = user.name;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.username = token.username as string;
+      }
+      return session;
+    }
+  },
   pages: {
     signIn: '/login',
     signOut: '/auth/signout',
@@ -68,6 +81,10 @@ const handler = NextAuth({
     verifyRequest: '/auth/verify-request',
     newUser: '/auth/new-user'
   },
-})
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+});
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };
