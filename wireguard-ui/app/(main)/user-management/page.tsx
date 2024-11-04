@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast"
 import { Pencil, Trash2, UserPlus } from "lucide-react"
 
@@ -40,6 +41,7 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { data: session, update } = useSession();
   const { toast } = useToast()
 
   const addUser = async () => {
@@ -77,14 +79,56 @@ export default function UserManagement() {
     setEditingUser(userToEdit || null);
   }
 
-  const updateUser = () => {
-    if (editingUser) {
-      setUsers(users.map(user => user.id === editingUser.id ? editingUser : user))
+  const updateUser = async () => {
+    try {
+      // Only send password if it's being changed
+      const updateData: { name?: string; password?: string } = {};
+
+      if (!editingUser) {
+        throw new Error('No user selected for editing');
+      }
+
+      if (editingUser?.name) {
+        updateData.name = editingUser.name
+      }
+
+      if (editingUser?.password) {
+        updateData.password = editingUser.password
+      }
+
+      const res = await fetch(`/api/users/${editingUser?.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update user');
+      }
+
+      const user: User = editingUser
+      user.password = ""
+      setEditingUser(user)
+      console.log(session)
+      console.log(editingUser)
+      if (editingUser?.id.toString() === session?.user.id) {
+        console.log("masuk")
+        await update({user: {name: editingUser.name}});
+      }
+      setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
       setEditingUser(null)
       toast({
         title: "User Updated",
-        description: `${editingUser.name}'s information has been updated.`,
+        description: `${editingUser?.name}'s information has been updated.`,
       })
+
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -220,14 +264,14 @@ export default function UserManagement() {
                             />
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="edit-username" className="text-right">
-                              Username
+                            <Label htmlFor="edit-password" className="text-right">
+                              Password
                             </Label>
                             <Input
-                              id="edit-username"
-                              type="username"
-                              value={editingUser?.username || ""}
-                              onChange={(e) => setEditingUser(editingUser ? { ...editingUser, username: e.target.value } : null)}
+                              id="edit-password"
+                              type="password"
+                              value={editingUser?.password || ""}
+                              onChange={(e) => setEditingUser(editingUser ? { ...editingUser, password: e.target.value } : null)}
                               className="col-span-3"
                             />
                           </div>
