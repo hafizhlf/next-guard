@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,29 +28,47 @@ import { Pencil, Trash2, UserPlus } from "lucide-react"
 
 type User = {
   id: number
+  username: string
   name: string
-  email: string
-  role: "admin" | "user"
+  password: string
 }
 
 export default function UserManagement() {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Admin User", email: "admin@example.com", role: "admin" },
-    { id: 2, name: "Regular User", email: "user@example.com", role: "user" },
-  ])
+  const [users, setUsers] = useState<User[]>([])
 
-  const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", email: "", role: "user" })
+  const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", username: "", password: "" })
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast()
 
-  const addUser = () => {
-    if (newUser.name && newUser.email) {
+  const addUser = async () => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newUser.name,
+          username: newUser.username,
+          password: newUser.password,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error creating user')
+      }
+
       setUsers([...users, { ...newUser, id: users.length + 1 }])
-      setNewUser({ name: "", email: "", role: "user" })
+      setNewUser({ name: "", username: "", password: "" })
       toast({
         title: "User Added",
         description: `${newUser.name} has been added successfully.`,
       })
+
+    } catch (error: any) {
+      setError(error.message)
     }
   }
 
@@ -78,6 +96,25 @@ export default function UserManagement() {
       variant: "destructive",
     })
   }
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   return (
     <Card>
@@ -112,32 +149,28 @@ export default function UserManagement() {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email" className="text-right">
-                    Email
+                  <Label htmlFor="username" className="text-right">
+                    Username
                   </Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    id="username"
+                    type="username"
+                    value={newUser.username}
+                    onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                     className="col-span-3"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="role" className="text-right">
-                    Role
+                  <Label htmlFor="password" className="text-right">
+                    Password
                   </Label>
-                  <Select
-                    onValueChange={(value) => setNewUser({ ...newUser, role: value as "admin" | "user" })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="col-span-3"
+                  />
                 </div>
               </div>
               <DialogFooter>
@@ -153,7 +186,6 @@ export default function UserManagement() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -161,8 +193,7 @@ export default function UserManagement() {
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
+                <TableCell>{user.username}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Dialog>
@@ -189,32 +220,16 @@ export default function UserManagement() {
                             />
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="edit-email" className="text-right">
-                              Email
+                            <Label htmlFor="edit-username" className="text-right">
+                              Username
                             </Label>
                             <Input
-                              id="edit-email"
-                              type="email"
-                              value={editingUser?.email || ""}
-                              onChange={(e) => setEditingUser(editingUser ? { ...editingUser, email: e.target.value } : null)}
+                              id="edit-username"
+                              type="username"
+                              value={editingUser?.username || ""}
+                              onChange={(e) => setEditingUser(editingUser ? { ...editingUser, username: e.target.value } : null)}
                               className="col-span-3"
                             />
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="edit-role" className="text-right">
-                              Role
-                            </Label>
-                            <Select
-                              onValueChange={(value) => setEditingUser(editingUser ? { ...editingUser, role: value as "admin" | "user" } : null)}
-                            >
-                              <SelectTrigger className="col-span-3">
-                                <SelectValue placeholder={editingUser?.role} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">User</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
                           </div>
                         </div>
                         <DialogFooter>
