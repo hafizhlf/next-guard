@@ -1,7 +1,9 @@
 "use client"
 
 import axios from 'axios'
+import { signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
@@ -15,13 +17,12 @@ import { ChevronDown, LogIn, LogOut, UserPlus, Users } from "lucide-react"
 
 const Navbar = () => {
   const [username, setUsername] = useState("")
-  const [fullname, setfullname] = useState("")
+  const { data: session, status } = useSession()
   const router = useRouter()
 
   const handleLogout = () => {
     console.log("Logging out...")
-    localStorage.removeItem("token")
-    setUsername("")
+    signOut()
   }
 
   const navigateToUserManagement = () => {
@@ -29,31 +30,10 @@ const Navbar = () => {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-
-    async function checkToken() {
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:8000/auth/secure-endpoint', {
-            headers: {
-              'Authorization': 'Bearer ' + token,
-            }
-          })
-          setUsername(response.data.user.username)
-          setfullname(response.data.user.fullname)
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            console.warn("Unauthorized access. Please log in again.")
-            localStorage.removeItem("token")
-          } else {
-            console.error("An error occurred:", error)
-          }
-        }
-      }
+    if (status === "authenticated") {
+      setUsername(session.user?.name || "")
     }
-
-    checkToken()
-  }, [])
+  }, [status])
 
   return (
     <>
@@ -65,7 +45,7 @@ const Navbar = () => {
               <Button variant="outline">
                 {username ? (
                   <>
-                    {fullname} <ChevronDown className="ml-2 h-4 w-4" />
+                    {username} <ChevronDown className="ml-2 h-4 w-4" />
                   </>
                 ) : (
                   <>

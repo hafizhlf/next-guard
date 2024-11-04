@@ -2,6 +2,7 @@
 
 import axios from 'axios'
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -21,6 +22,7 @@ interface Client {
 export default function WireGuardDashboard() {
   const [clients, setClients] = useState<Client[]>([])
   const [newClientName, setNewClientName] = useState("")
+  const { data: session, status } = useSession()
 
   const addClient = (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,28 +40,28 @@ export default function WireGuardDashboard() {
     }
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem("token")
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token")
 
-    async function fetchClients() {
-      try {
-        const response = await axios.get('http://localhost:8000/wireguard/config/list-peers', {
-          headers: {
-            'Authorization': 'Bearer ' + token,
-          }
-        })
-        setClients(response.data.peers)
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.warn("Unauthorized access.")
-        } else {
-          console.error("An error occurred:", error)
-        }
-      }
-    }
+  //   async function fetchClients() {
+  //     try {
+  //       const response = await axios.get('http://localhost:8000/wireguard/config/list-peers', {
+  //         headers: {
+  //           'Authorization': 'Bearer ' + token,
+  //         }
+  //       })
+  //       setClients(response.data.peers)
+  //     } catch (error) {
+  //       if (axios.isAxiosError(error)) {
+  //         console.warn("Unauthorized access.")
+  //       } else {
+  //         console.error("An error occurred:", error)
+  //       }
+  //     }
+  //   }
 
-    fetchClients()
-  }, [])
+  //   fetchClients()
+  // }, [])
 
   return (
     <div className="container mx-auto p-4">

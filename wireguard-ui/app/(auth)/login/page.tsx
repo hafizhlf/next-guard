@@ -1,9 +1,11 @@
 "use client"
 
-import axios from 'axios'
-import Link from 'next/link'
+import { signIn, useSession } from "next-auth/react"
+import AuthError from "next-auth";
+import axios from "axios"
+import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { Eye, EyeOff, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,40 +17,37 @@ export default function LoginForm() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
+  const [errorMsg, setErrorMsg] = useState("")
+  const { data: session, status } = useSession()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!username || !password) {
-      setError("Please fill in all fields")
-    } else {
-      try {
-        const response = await axios.post('http://localhost:8000/auth/token', {
-          username,
-          password
-        }, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        });
-        const { access_token } = response.data;
-        localStorage.setItem('token', access_token);
-        router.push('/')
-      } catch (e) {
-        setError('Invalid credentials');
-        console.log(e)
-      }
-      console.log("Login attempted with:", { username, password })
+    const response = await signIn("credentials", { username: username, password: password, redirect: false })
+    console.log(response)
+    if (!response) {
+      setErrorMsg("Something went wrong.");
+      return "Something went wrong.";
+    }
+    if (response.ok) {
+      router.push("/dashboard")
+      return;
+    }
+    switch (response.error) {
+      case "CredentialsSignin":
+        setErrorMsg("Invalid credentials.")
+        return "Invalid credentials.";
+      default:
+        setErrorMsg("Something went wrong.")
+        return "Something went wrong.";
     }
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      router.push('/');
+    if (status === "authenticated") {
+      router.push("/");
     }
-  }, [router]);
+  }, [status]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -59,9 +58,9 @@ export default function LoginForm() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {error && (
+            {errorMsg && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{errorMsg}</AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
