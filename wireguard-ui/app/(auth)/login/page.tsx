@@ -1,8 +1,6 @@
 "use client"
 
 import { signIn, useSession } from "next-auth/react"
-import AuthError from "next-auth";
-import axios from "axios"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -18,7 +16,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +45,7 @@ export default function LoginForm() {
     if (status === "authenticated") {
       router.push("/");
     }
-  }, [status]);
+  }, [router, status]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

@@ -1,6 +1,5 @@
 "use client"
 
-import axios from 'axios'
 import { signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
@@ -33,7 +32,7 @@ const Navbar = () => {
     if (status === "authenticated") {
       setUsername(session.user?.name || "")
     }
-  }, [status])
+  }, [status, session])
 
   return (
     <>
