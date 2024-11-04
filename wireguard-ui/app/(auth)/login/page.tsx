@@ -19,14 +19,13 @@ export default function LoginForm() {
   const { status } = useSession()
   const searchParams = useSearchParams();
   const router = useRouter()
+  const callback = searchParams.get('callbackUrl') || '/dashboard';
 
   const handleCallback = (callbackUrl: string) => {
-    // Check if it's an absolute URL
     if (callbackUrl.startsWith('http')) {
       const url = new URL(callbackUrl);
       return url.pathname;
     }
-    // It's already a relative path
     return callbackUrl;
   };
 
@@ -37,16 +36,12 @@ export default function LoginForm() {
       username: username,
       password: password,
       redirect: false,
-      callbackUrl: searchParams.get('callbackUrl') || '/dashboard'
     })
     if (!response) {
       setErrorMsg("Something went wrong.");
       return;
     }
     if (response.ok) {
-      const callback = searchParams.get('callbackUrl') || '/dashboard';
-      console.log(callback)
-      router.push(handleCallback(callback))
       return;
     }
     switch (response.error) {
@@ -58,6 +53,12 @@ export default function LoginForm() {
         return;
     }
   }
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(handleCallback(callback));
+    }
+  }, [status]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
