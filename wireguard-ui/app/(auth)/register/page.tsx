@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function RegisterForm() {
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -19,10 +19,10 @@ export default function RegisterForm() {
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Basic form validation
-    if (!email || !password || !confirmPassword) {
+    if (!username || !password || !confirmPassword) {
       setError("Please fill in all fields")
     } else if (password !== confirmPassword) {
       setError("Passwords do not match")
@@ -30,8 +30,30 @@ export default function RegisterForm() {
       setError("Password must be at least 8 characters long")
     } else {
       setError("")
-      console.log("Registration attempted with:", { email, password })
-      // You would typically make an API call here to register the user
+      console.log("Registration attempted with:", { username, password })
+    }
+
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+          name,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error creating user')
+      }
+
+      router.push('/login')
+    } catch (error: any) {
+      setError(error.message)
     }
   }
 
@@ -57,13 +79,13 @@ export default function RegisterForm() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
