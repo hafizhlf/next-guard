@@ -3,12 +3,12 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
 
 class User extends Model {
-  public id!: number;
-  public username!: string;
-  public password!: string;
-  public name!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: number;
+  declare username: string;
+  declare password: string;
+  declare name: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 User.init({
@@ -29,6 +29,16 @@ User.init({
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,

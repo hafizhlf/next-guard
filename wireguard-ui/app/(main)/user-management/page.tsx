@@ -116,9 +116,10 @@ export default function UserManagement() {
       console.log(editingUser)
       if (editingUser?.id.toString() === session?.user.id) {
         console.log("masuk")
-        await update({user: {name: editingUser.name}});
+        await update({name: editingUser.name});
       }
-      setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
+      await update();
+        setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
       setEditingUser(null)
       toast({
         title: "User Updated",

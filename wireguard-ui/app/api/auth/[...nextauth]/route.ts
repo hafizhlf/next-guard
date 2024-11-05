@@ -58,19 +58,45 @@ const handler = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, trigger, user }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
         token.name = user.name;
       }
+
+      if (trigger === 'update') {
+        const updatedUser = await models.User.findOne({
+          where: { id: token.id },
+        });
+  
+        if (updatedUser) {
+          token.username = updatedUser.username;
+          token.name = updatedUser.name;
+        }
+      }
+
+      console.log(token, 'token')
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.username = token.username as string;
+      console.log(session, 'session-')
+      console.log(token, 'token-')
+
+      session.user.id = token.id;
+      session.user.username = token.username as string;
+      session.user.name = token.name as string;
+
+      const latestUser = await models.User.findOne({
+        where: { id: token.id },
+      });
+
+      if (latestUser) {
+        session.user.username = latestUser.username;
+        session.user.name = latestUser.name;
       }
+
+      console.log(session, "session")
       return session;
     }
   },
