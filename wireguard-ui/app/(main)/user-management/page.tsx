@@ -32,7 +32,7 @@ export default function UserManagement() {
 
   const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", username: "", password: "" })
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const { update } = useSession();
+  const { data: session, update } = useSession();
   const { toast } = useToast()
 
   const addUser = async () => {
@@ -53,7 +53,9 @@ export default function UserManagement() {
         throw new Error(data.error || 'Error creating user')
       }
 
-      setUsers([...users, { ...newUser, id: users.length + 1 }])
+      const data = await res.json();
+
+      setUsers([...users, { ...newUser, id: data.id }])
       setNewUser({ name: "", username: "", password: "" })
       toast({
         title: "User Added",
@@ -62,9 +64,17 @@ export default function UserManagement() {
 
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error.message)
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
       } else {
-        console.log('An unexpected error occurred')
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
       }
     }
   }
@@ -117,20 +127,60 @@ export default function UserManagement() {
 
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error.message)
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
       } else {
-        console.log('An unexpected error occurred')
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
       }
     }
   }
 
-  const deleteUser = (id: number) => {
-    setUsers(users.filter(user => user.id !== id))
-    toast({
-      title: "User Deleted",
-      description: "The user has been removed from the system.",
-      variant: "destructive",
-    })
+  const deleteUser = async (id: number) => {
+    try {
+      // if (session?.user.id === id.toString()) {
+      //   throw new Error('User ID matches the session user ID.');
+      // }
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete user');
+      }
+
+      const data = await res.json();
+
+      setUsers(users.filter(user => user.id !== id))
+      toast({
+        title: "User Deleted",
+        description: data.message,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
+    }
   }
 
   useEffect(() => {

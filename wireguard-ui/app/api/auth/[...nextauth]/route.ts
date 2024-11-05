@@ -1,11 +1,12 @@
 // app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth";
+import NextAuth from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs';
 import { connectDatabase } from '@/lib/db';
 import models from '@/models';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = ({
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -80,8 +81,8 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (!token) {
-        session.user.username = ""
         session.user.id = ""
+        session.user.username = ""
         session.user.name = ""
         return session
       }
@@ -95,7 +96,6 @@ const handler = NextAuth({
       });
 
       if (latestUser) {
-        session.user.username = latestUser.username;
         session.user.name = latestUser.name;
       }
 
@@ -115,4 +115,6 @@ const handler = NextAuth({
   },
 });
 
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions)
+
+export { handler as GET, handler as POST }
