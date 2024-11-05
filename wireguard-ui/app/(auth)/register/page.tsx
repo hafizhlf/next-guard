@@ -25,16 +25,19 @@ export default function RegisterForm() {
     // Basic form validation
     if (!username || !password || !confirmPassword) {
       setError("Please fill in all fields")
+      return
     } else if (password !== confirmPassword) {
       setError("Passwords do not match")
+      return
     } else if (password.length < 8) {
       setError("Password must be at least 8 characters long")
+      return
     } else {
       setError("")
-      console.log("Registration attempted with:", { username, password })
     }
 
     try {
+      console.log('running')
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: {
