@@ -1,13 +1,10 @@
 // app/api/register/route.ts
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { connectDatabase } from '@/lib/db';
-import models from '@/models';
+import User from '@/models/user';
 
 export async function POST(req: Request) {
   try {
-    await connectDatabase();
-    
     const { username, password, name } = await req.json();
 
     // Validate input
@@ -19,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     // Check if user already exists
-    const existingUser = await models.User.findOne({
+    const existingUser = await User.findOne({
       where: { username }
     });
 
@@ -34,7 +31,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await models.User.create({
+    const user = await User.create({
       username,
       password: hashedPassword,
       name,
@@ -42,7 +39,7 @@ export async function POST(req: Request) {
 
     // Return user data (excluding password)
     const { password: _, ...userWithoutPassword } = user.get();
-    
+
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);

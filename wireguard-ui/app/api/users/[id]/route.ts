@@ -1,10 +1,9 @@
 // app/api/users/[id]/route.ts
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from '@/lib/authOption'
 import bcrypt from 'bcryptjs'
-import { connectDatabase } from '@/lib/db'
-import models from '@/models'
+import User from '@/models/user'
 
 export async function PUT(
   request: Request,
@@ -24,10 +23,8 @@ export async function PUT(
     const data = await request.json()
     const { name, password } = data
 
-    await connectDatabase()
-
     // Find user
-    const user = await models.User.findByPk(userId)
+    const user = await User.findByPk(userId)
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -85,10 +82,8 @@ export async function DELETE(
       )
     }
 
-    await connectDatabase();
-
     // Find user
-    const user = await models.User.findByPk(userId);
+    const user = await User.findByPk(userId);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },

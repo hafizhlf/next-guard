@@ -1,8 +1,7 @@
 // app/api/users/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { connectDatabase } from '@/lib/db';
-import models from '@/models';
+import User from '@/models/user';
 
 export async function GET() {
   try {
@@ -15,10 +14,8 @@ export async function GET() {
       );
     }
 
-    await connectDatabase();
-
     // Get all users, excluding their passwords
-    const users = await models.User.findAll({
+    const users = await User.findAll({
       attributes: { exclude: ['password'] },
       order: [['id', 'asc']]
     });

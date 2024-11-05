@@ -1,5 +1,5 @@
 // src/lib/db.ts
-import { sequelize } from '../models';
+import { sequelize } from '../config/database';
 
 export async function connectDatabase() {
   try {
