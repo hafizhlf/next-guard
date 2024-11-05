@@ -32,7 +32,7 @@ export default function UserManagement() {
 
   const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", username: "", password: "" })
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const { data: session, update } = useSession();
+  const { update } = useSession();
   const { toast } = useToast()
 
   const addUser = async () => {
