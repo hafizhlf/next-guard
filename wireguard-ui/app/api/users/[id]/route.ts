@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/authOption'
+import authOptions from '@/lib/authOption'
 import bcrypt from 'bcryptjs'
 import User from '@/models/user'
 

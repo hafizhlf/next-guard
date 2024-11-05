@@ -43,7 +43,7 @@ User.init({
 }, {
   sequelize,
   modelName: 'User',
-  tableName: 'Users', // Make sure this matches your migration
+  tableName: 'Users',
 });
 
 export default User;

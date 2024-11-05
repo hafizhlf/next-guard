@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import authOptions from '@/lib/authOption'
 import User from '@/models/user';
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
     // Check authentication
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },

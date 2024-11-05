@@ -37,7 +37,7 @@ export default function UserManagement() {
 
   const addUser = async () => {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

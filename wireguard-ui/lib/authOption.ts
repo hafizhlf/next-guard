@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcryptjs'
 import User from '@/models/user'
 
-export const authOptions: NextAuthOptions = ({
+const authOptions: NextAuthOptions = ({
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -108,3 +108,5 @@ export const authOptions: NextAuthOptions = ({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 })
+
+export default authOptions
