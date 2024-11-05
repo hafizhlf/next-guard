@@ -55,7 +55,7 @@ export default function UserManagement() {
 
       const data = await res.json();
 
-      setUsers([...users, { ...newUser, id: data.id }])
+      setUsers([...users, { ...newUser, id: data.id, password: "" }])
       setNewUser({ name: "", username: "", password: "" })
       toast({
         title: "User Added",

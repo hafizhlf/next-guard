@@ -1,4 +1,3 @@
-// app/api/users/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import User from '@/models/user';
