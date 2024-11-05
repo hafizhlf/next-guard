@@ -16,13 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast"
 import { Pencil, Trash2, UserPlus } from "lucide-react"
@@ -39,9 +32,7 @@ export default function UserManagement() {
 
   const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", username: "", password: "" })
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { data: session, update } = useSession();
+  const { update } = useSession();
   const { toast } = useToast()
 
   const addUser = async () => {
@@ -69,8 +60,12 @@ export default function UserManagement() {
         description: `${newUser.name} has been added successfully.`,
       })
 
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error.message)
+      } else {
+        console.log('An unexpected error occurred')
+      }
     }
   }
 
@@ -112,24 +107,20 @@ export default function UserManagement() {
       const user: User = editingUser
       user.password = ""
       setEditingUser(user)
-      console.log(session)
-      console.log(editingUser)
-      if (editingUser?.id.toString() === session?.user.id) {
-        console.log("masuk")
-        await update({name: editingUser.name});
-      }
       await update();
-        setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
+      setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
       setEditingUser(null)
       toast({
         title: "User Updated",
         description: `${editingUser?.name}'s information has been updated.`,
       })
 
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error.message)
+      } else {
+        console.log('An unexpected error occurred')
+      }
     }
   }
 
@@ -152,9 +143,7 @@ export default function UserManagement() {
         const data = await response.json();
         setUsers(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+        console.log(err instanceof Error ? err.message : 'An error occurred');
       }
     };
 

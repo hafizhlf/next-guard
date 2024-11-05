@@ -76,13 +76,9 @@ const handler = NextAuth({
         }
       }
 
-      console.log(token, 'token')
       return token;
     },
     async session({ session, token }) {
-      console.log(session, 'session-')
-      console.log(token, 'token-')
-
       session.user.id = token.id;
       session.user.username = token.username as string;
       session.user.name = token.name as string;
@@ -96,7 +92,6 @@ const handler = NextAuth({
         session.user.name = latestUser.name;
       }
 
-      console.log(session, "session")
       return session;
     }
   },

@@ -58,7 +58,7 @@ export default function LoginForm() {
     if (status === "authenticated") {
       router.push(handleCallback(callback));
     }
-  }, [status]);
+  }, [status, router, callback]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
