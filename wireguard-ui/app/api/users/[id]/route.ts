@@ -96,6 +96,13 @@ export async function DELETE(
       )
     }
 
+    if (user.username === "admin" || user.id === 1) {
+      return NextResponse.json(
+        { error: 'You cannot delete Administrator data.' },
+        { status: 403 }
+      )
+    }
+
     // Delete user
     user.destroy()
     return NextResponse.json(

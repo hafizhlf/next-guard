@@ -16,6 +16,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
+  const [loading, setloading] = useState(false)
   const { status } = useSession()
   const searchParams = useSearchParams();
   const router = useRouter()
@@ -32,6 +33,7 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg("")
+    setloading(true)
     const response = await signIn("credentials", {
       username: username,
       password: password,
@@ -44,6 +46,7 @@ export default function LoginForm() {
     if (response.ok) {
       return;
     }
+    setloading(false)
     switch (response.error) {
       case "CredentialsSignin":
         setErrorMsg("Invalid credentials.")
@@ -114,7 +117,7 @@ export default function LoginForm() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={loading}>
               <LogIn className="mr-2 h-4 w-4" /> Sign In
             </Button>
             <div className="text-sm text-center text-gray-500">
