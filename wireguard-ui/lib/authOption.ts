@@ -71,6 +71,14 @@ const authOptions: NextAuthOptions = ({
         }
       }
 
+      const currentUser = await User.findOne({
+        where: { id: token.id },
+      })
+
+      if (!currentUser) {
+        throw new Error("Unauthorized")
+      }
+
       return token
     },
     async session({ session, token }) {
