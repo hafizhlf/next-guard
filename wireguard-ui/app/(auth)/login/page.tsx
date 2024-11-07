@@ -59,9 +59,9 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push(handleCallback(callback));
+      router.push(handleCallback(callback))
     }
-  }, [status, router, callback]);
+  }, [status, callback, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
