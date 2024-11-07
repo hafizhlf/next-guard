@@ -6,10 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Plus, RefreshCw, Settings, Users, ServerIcon, Pencil, Trash2, UserPlus } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ServerIcon, Pencil, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
@@ -22,29 +19,10 @@ interface Server {
 
 export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
-  const [selectedServer, setSelectedServer] = useState<Server>(servers[0])
-  const [newClientName, setNewClientName] = useState("")
   const [ipAddress, setIpAddress] = useState("")
   const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820 })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
-
-  const addClient = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newClientName) {
-      const updatedServers = servers.map(server => {
-        if (server.id === selectedServer.id) {
-          return {
-            ...server,
-          }
-        }
-        return server
-      })
-      setServers(updatedServers)
-      setSelectedServer(updatedServers.find(server => server.id === selectedServer.id) || selectedServer)
-      setNewClientName("")
-    }
-  }
 
   const addServer = async () => {
     try {
