@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,8 +26,17 @@ interface Client {
   lastSeen: string
 }
 
+interface Server {
+  id: number
+  name: string
+  ip_address: string
+  port: number
+}
+
 export default function WireGuardDashboard() {
   const [clients, setClients] = useState<Client[]>([])
+  const [servers, setServers] = useState<Server[]>([])
+  const [currentServers, setCurrentServers] = useState<Server>()
   const [newClientName, setNewClientName] = useState("")
 
   const addClient = (e: React.FormEvent) => {
@@ -46,6 +55,31 @@ export default function WireGuardDashboard() {
     }
   }
 
+  const getServerData = (serverId: string) => {
+    const selectedServer = servers.find(server => server.id.toString() === serverId)
+    if (selectedServer) {
+      setCurrentServers(selectedServer)
+      console.log("Selected server:", selectedServer)
+    }
+  }
+
+  useEffect(() => {
+    const fetchServers = async () => {
+      try {
+        const response = await fetch('/api/server')
+        if (!response.ok) {
+          throw new Error('Failed to fetch servers')
+        }
+        const data = await response.json()
+        setServers(data)
+      } catch (err) {
+        console.log(err instanceof Error ? err.message : 'An error occurred')
+      }
+    }
+
+    fetchServers()
+  }, [])
+
   return (
     <div className="container mx-auto p-4">
 
@@ -61,14 +95,16 @@ export default function WireGuardDashboard() {
           </TabsTrigger>
         </TabsList>
         <div className="float-right">
-          <Select>
+          <Select onValueChange={getServerData}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select a server" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem key="1" value="1">
-                Server 1
-              </SelectItem>
+              {servers.map((server) => (
+                <SelectItem key={server.id} value={server.id.toString()}>
+                  {server.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -138,14 +174,14 @@ export default function WireGuardDashboard() {
                   <Label htmlFor="serverIP">Server IP</Label>
                   <p className="text-sm text-muted-foreground">The IP address of the WireGuard server used for client connections.</p>
                 </div>
-                <Input id="serverIP" className="w-[200px]" defaultValue="10.0.0.1" readOnly disabled />
+                <Input id="serverIP" className="w-[200px]" value={currentServers?.ip_address || "-"} readOnly disabled />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="serverPort">Server Port</Label>
                   <p className="text-sm text-muted-foreground">The port your WireGuard server listens on</p>
                 </div>
-                <Input id="serverPort" className="w-[200px]" defaultValue="51820" readOnly disabled />
+                <Input id="serverPort" className="w-[200px]" value={currentServers?.port || "-"} readOnly disabled />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">

@@ -150,16 +150,16 @@ export default function WireGuardDashboard() {
   }
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchServers = async () => {
       try {
-        const response = await fetch('/api/server');
+        const response = await fetch('/api/server')
         if (!response.ok) {
-          throw new Error('Failed to fetch users');
+          throw new Error('Failed to fetch servers')
         }
-        const data = await response.json();
-        setServers(data);
+        const data = await response.json()
+        setServers(data)
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred');
+        console.log(err instanceof Error ? err.message : 'An error occurred')
       }
     }
 
@@ -169,13 +169,13 @@ export default function WireGuardDashboard() {
         const ipAddress = await response.text()
         setIpAddress(ipAddress)
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred');
+        console.log(err instanceof Error ? err.message : 'An error occurred')
       }
     }
 
-    getIpAddress();
-    fetchUsers();
-  }, []);
+    getIpAddress()
+    fetchServers()
+  }, [])
 
   return (
     <div className="container mx-auto p-4">
