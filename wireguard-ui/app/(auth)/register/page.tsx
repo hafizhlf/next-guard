@@ -37,7 +37,6 @@ export default function RegisterForm() {
     }
 
     try {
-      console.log('running')
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: {

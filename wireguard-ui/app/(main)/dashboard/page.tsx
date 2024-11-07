@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { useToast } from "@/hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Plus, RefreshCw, Settings, Users } from "lucide-react"
 
@@ -36,6 +37,7 @@ export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
   const [currentServers, setCurrentServers] = useState<Server>()
   const [newClientName, setNewClientName] = useState("")
+  const { toast } = useToast()
 
   const addClient = (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,7 +59,6 @@ export default function WireGuardDashboard() {
     const selectedServer = servers.find(server => server.id.toString() === serverId)
     if (selectedServer) {
       setCurrentServers(selectedServer)
-      console.log("Selected server:", selectedServer)
     }
   }
 
@@ -71,7 +72,19 @@ export default function WireGuardDashboard() {
         const data = await response.json()
         setServers(data)
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred')
+        if (err instanceof Error){
+          toast({
+            title: "An error occurred",
+            description: err.message,
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Something wrong",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          })
+        }
       }
     }
 

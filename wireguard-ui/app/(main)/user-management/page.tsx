@@ -193,7 +193,19 @@ export default function UserManagement() {
         const data = await response.json();
         setUsers(data);
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred');
+        if (err instanceof Error){
+          toast({
+            title: "An error occurred",
+            description: err.message,
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Something wrong",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          })
+        }
       }
     };
 

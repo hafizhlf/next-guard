@@ -137,7 +137,19 @@ export default function WireGuardDashboard() {
         const data = await response.json()
         setServers(data)
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred')
+        if (err instanceof Error){
+          toast({
+            title: "An error occurred",
+            description: err.message,
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Something wrong",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          })
+        }
       }
     }
 
@@ -147,7 +159,19 @@ export default function WireGuardDashboard() {
         const ipAddress = await response.text()
         setIpAddress(ipAddress)
       } catch (err) {
-        console.log(err instanceof Error ? err.message : 'An error occurred')
+        if (err instanceof Error){
+          toast({
+            title: "An error occurred",
+            description: err.message,
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Something wrong",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          })
+        }
       }
     }
 
