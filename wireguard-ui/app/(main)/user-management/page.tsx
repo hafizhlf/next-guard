@@ -210,7 +210,7 @@ export default function UserManagement() {
     };
 
     fetchUsers();
-  }, []);
+  }, [toast]);
 
   return (
     <Card>

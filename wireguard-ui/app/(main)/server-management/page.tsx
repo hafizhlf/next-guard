@@ -177,7 +177,7 @@ export default function WireGuardDashboard() {
 
     getIpAddress()
     fetchServers()
-  }, [])
+  }, [toast])
 
   return (
     <div className="container mx-auto p-4">

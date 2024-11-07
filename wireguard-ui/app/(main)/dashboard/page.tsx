@@ -89,7 +89,7 @@ export default function WireGuardDashboard() {
     }
 
     fetchServers()
-  }, [])
+  }, [toast])
 
   return (
     <div className="container mx-auto p-4">
