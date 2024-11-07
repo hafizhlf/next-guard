@@ -1,18 +1,29 @@
-// use by migrations
-module.exports = {
+// config/database.js
+const Sequelize = require('sequelize');
+
+const config = {
   development: {
     dialect: 'sqlite',
     storage: './database.sqlite',
-    logging: false
+    logging: false,
   },
   test: {
     dialect: 'sqlite',
     storage: ':memory:',
-    logging: false
+    logging: false,
   },
   production: {
     dialect: 'sqlite',
     storage: './database.sqlite',
-    logging: false
-  }
+    logging: false,
+  },
 };
+
+const env = process.env.NODE_ENV || 'development';
+const dbConfig = config[env];
+
+const sequelize = new Sequelize({
+  ...dbConfig
+});
+
+module.exports = sequelize;
