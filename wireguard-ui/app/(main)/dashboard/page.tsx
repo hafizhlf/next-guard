@@ -6,6 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Plus, RefreshCw, Settings, Users } from "lucide-react"
@@ -39,6 +48,7 @@ export default function WireGuardDashboard() {
 
   return (
     <div className="container mx-auto p-4">
+
       <Tabs defaultValue="clients">
         <TabsList className="mb-4">
           <TabsTrigger value="clients">
@@ -50,6 +60,18 @@ export default function WireGuardDashboard() {
             Server Settings
           </TabsTrigger>
         </TabsList>
+        <div className="float-right">
+          <Select>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select a server" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem key="1" value="1">
+                Server 1
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         <TabsContent value="clients">
           <Card>
