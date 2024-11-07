@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,49 +10,24 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Plus, RefreshCw, Settings, Users, ServerIcon, Pencil, Trash2, UserPlus } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-
-interface Client {
-  id: number
-  name: string
-  ip_address: string
-  lastSeen: string
-}
 
 interface Server {
   id: number
   name: string
   ip_address: string
   port: number
-  clients: Client[]
 }
 
 export default function WireGuardDashboard() {
-  const [servers, setServers] = useState<Server[]>([
-    {
-      id: 1,
-      name: "Server 1",
-      ip_address: "10.0.0.1",
-      port: 51820,
-      clients: [
-        { id: 1, name: "Client 1", ip_address: "10.0.0.2", lastSeen: "5 minutes ago" },
-        { id: 2, name: "Client 2", ip_address: "10.0.0.3", lastSeen: "2 hours ago" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Server 2",
-      ip_address: "10.0.1.1",
-      port: 51821,
-      clients: [
-        { id: 1, name: "Client A", ip_address: "10.0.1.2", lastSeen: "1 day ago" },
-      ],
-    },
-  ])
+  const [servers, setServers] = useState<Server[]>([])
   const [selectedServer, setSelectedServer] = useState<Server>(servers[0])
   const [newClientName, setNewClientName] = useState("")
+  const [ipAddress, setIpAddress] = useState("")
   const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820 })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
+  const { toast } = useToast()
 
   const addClient = (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,15 +36,6 @@ export default function WireGuardDashboard() {
         if (server.id === selectedServer.id) {
           return {
             ...server,
-            clients: [
-              ...server.clients,
-              {
-                id: server.clients.length + 1,
-                name: newClientName,
-                ip_address: `10.0.${server.id - 1}.${server.clients.length + 2}`,
-                lastSeen: "Never",
-              },
-            ],
           }
         }
         return server
@@ -80,22 +46,53 @@ export default function WireGuardDashboard() {
     }
   }
 
-  const handleServerChange = (serverId: string) => {
-    const server = servers.find(s => s.id === parseInt(serverId))
-    if (server) {
-      setSelectedServer(server)
-    }
-  }
+  const addServer = async () => {
+    try {
+      const res = await fetch('/api/server', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newServer.name,
+          ip_address: ipAddress,
+          port: newServer.port,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error creating server')
+      }
 
-  const addServer = () => {
-    const newServerId = servers.length + 1
-    const newServerWithId: Server = {
-      ...newServer,
-      id: newServerId,
-      clients: [],
+      const data = await res.json()
+
+      const newServerWithId: Server = {
+        ...newServer,
+        id: data.id,
+        ip_address: data.ip_address,
+        port: data.port,
+      }
+      setServers([...servers, newServerWithId])
+      setNewServer({ name: "", ip_address: "", port: 51820 })
+      toast({
+        title: "Server Added",
+        description: `${data.name} has been added successfully.`,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
     }
-    setServers([...servers, newServerWithId])
-    setNewServer({ name: "", ip_address: "", port: 51820 })
   }
 
   const editServer = (id: number) => {
@@ -114,12 +111,71 @@ export default function WireGuardDashboard() {
     }
   }
 
-  const deleteServer = (id: number) => {
-    setServers(servers.filter(server => server.id !== id))
-    if (selectedServer.id === id) {
-      setSelectedServer(servers[0])
+  const deleteServer = async (id: number) => {
+    try {
+      const res = await fetch(`/api/server/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete server');
+      }
+
+      const data = await res.json();
+
+      setServers(servers.filter(server => server.id !== id))
+      toast({
+        title: "Server Deleted",
+        description: data.message,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
     }
   }
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/server');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        setServers(data);
+      } catch (err) {
+        console.log(err instanceof Error ? err.message : 'An error occurred');
+      }
+    }
+
+    const getIpAddress = async () => {
+      try {
+        const response = await fetch('https://icanhazip.com/')
+        const ipAddress = await response.text()
+        setIpAddress(ipAddress)
+      } catch (err) {
+        console.log(err instanceof Error ? err.message : 'An error occurred');
+      }
+    }
+
+    getIpAddress();
+    fetchUsers();
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
@@ -160,8 +216,8 @@ export default function WireGuardDashboard() {
                     </Label>
                     <Input
                       id="server-ip"
-                      value={newServer.ip_address}
-                      onChange={(e) => setNewServer({ ...newServer, ip_address: e.target.value })}
+                      value={ipAddress}
+                      disabled
                       className="col-span-3"
                     />
                   </div>

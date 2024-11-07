@@ -1,48 +1,45 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
 
-class User extends Model {
+class Server extends Model {
   declare id: number;
-  declare username: string;
-  declare password: string;
   declare name: string;
+  declare ip_address: string;
+  declare status: string;
+  declare port: number;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
 
-User.init({
+Server.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  username: {
+  name: {
     type: DataTypes.STRING,
     unique: true,
     allowNull: false,
   },
-  password: {
+  ip_address: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  name: {
-    type: DataTypes.STRING,
+  port: {
+    type: DataTypes.INTEGER,
+    unique: true,
     allowNull: false,
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
+  status: {
+    type: DataTypes.ENUM('Online', 'Offline', 'Maintenance'),
+    defaultValue: 'Offline',
   },
 }, {
   sequelize,
-  modelName: 'User',
-  tableName: 'Users',
+  modelName: 'Server',
+  tableName: 'servers',
+  timestamps: true
 });
 
-export default User;
+export default Server;
