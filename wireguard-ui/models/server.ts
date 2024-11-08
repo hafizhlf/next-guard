@@ -30,6 +30,7 @@ Server.init({
   },
   ip_address: {
     type: DataTypes.STRING,
+    unique: true,
     allowNull: false,
   },
   port: {
