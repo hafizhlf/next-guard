@@ -65,9 +65,9 @@ export default function WireGuardDashboard() {
   useEffect(() => {
     const fetchServers = async () => {
       try {
-        const response = await fetch('/api/server')
+        const response = await fetch("/api/server")
         if (!response.ok) {
-          throw new Error('Failed to fetch servers')
+          throw new Error("Failed to fetch servers")
         }
         const data = await response.json()
         setServers(data)

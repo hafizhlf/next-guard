@@ -1,8 +1,8 @@
 "use client"
 
-import Link from 'next/link'
+import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { Eye, EyeOff, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,10 +37,10 @@ export default function RegisterForm() {
     }
 
     try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
+      const res = await fetch("/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name,
@@ -51,23 +51,23 @@ export default function RegisterForm() {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error creating user')
+        throw new Error(data.error || "Error creating user")
       }
 
-      router.push('/login')
+      router.push("/login")
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError('An unexpected error occurred')
+        setError("An unexpected error occurred")
       }
     }
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token")
     if (token) {
-      router.push('/')
+      router.push("/")
     }
   }, [router])
 

@@ -27,10 +27,10 @@ export default function WireGuardDashboard() {
 
   const addServer = async () => {
     try {
-      const res = await fetch('/api/server', {
-        method: 'POST',
+      const res = await fetch("/api/server", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: newServer.name,
@@ -40,7 +40,7 @@ export default function WireGuardDashboard() {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error creating server')
+        throw new Error(data.error || "Error creating server")
       }
 
       const data = await res.json()
@@ -86,7 +86,7 @@ export default function WireGuardDashboard() {
       const updateData: { name?: string, port?: number } = {}
 
       if (!editingServer) {
-        throw new Error('No server selected for editing')
+        throw new Error("No server selected for editing")
       }
 
       if (editingServer?.name) {
@@ -98,16 +98,16 @@ export default function WireGuardDashboard() {
       }
 
       const res = await fetch(`/api/server/${editingServer?.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to update server')
+        throw new Error(data.error || "Failed to update server")
       }
 
       const data = await res.json()
@@ -119,7 +119,7 @@ export default function WireGuardDashboard() {
 
       toast({
         title: "Server Updated",
-        description: `${data.name}'s information has been updated.`,
+        description: `${data.name}"s information has been updated.`,
       })
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -141,15 +141,15 @@ export default function WireGuardDashboard() {
   const deleteServer = async (id: number) => {
     try {
       const res = await fetch(`/api/server/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to delete server')
+        throw new Error(data.error || "Failed to delete server")
       }
 
       const data = await res.json()
@@ -184,16 +184,16 @@ export default function WireGuardDashboard() {
       updateData.status = server?.status === "Online" ? "Offline" : "Online"
 
       const res = await fetch(`/api/server/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to update server')
+        throw new Error(data.error || "Failed to update server")
       }
 
       const data = await res.json()
@@ -205,7 +205,7 @@ export default function WireGuardDashboard() {
 
       toast({
         title: "Server Updated",
-        description: `${data.name}'s information has been updated.`,
+        description: `${data.name}"s information has been updated.`,
       })
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -227,9 +227,9 @@ export default function WireGuardDashboard() {
   useEffect(() => {
     const fetchServers = async () => {
       try {
-        const response = await fetch('/api/server')
+        const response = await fetch("/api/server")
         if (!response.ok) {
-          throw new Error('Failed to fetch servers')
+          throw new Error("Failed to fetch servers")
         }
         const data = await response.json()
         setServers(data)
@@ -252,7 +252,7 @@ export default function WireGuardDashboard() {
 
     const getIpAddress = async () => {
       try {
-        const response = await fetch('https://icanhazip.com/')
+        const response = await fetch("https://icanhazip.com/")
         const ipAddress = await response.text()
         setIpAddress(ipAddress)
       } catch (err) {

@@ -37,10 +37,10 @@ export default function UserManagement() {
 
   const addUser = async () => {
     try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
+      const res = await fetch("/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: newUser.name,
@@ -50,7 +50,7 @@ export default function UserManagement() {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error creating user')
+        throw new Error(data.error || "Error creating user")
       }
 
       const data = await res.json()
@@ -86,11 +86,11 @@ export default function UserManagement() {
 
   const updateUser = async () => {
     try {
-      // Only send password if it's being changed
+      // Only send password if it"s being changed
       const updateData: { name?: string, password?: string } = {}
 
       if (!editingUser) {
-        throw new Error('No user selected for editing')
+        throw new Error("No user selected for editing")
       }
 
       if (editingUser?.name) {
@@ -102,16 +102,16 @@ export default function UserManagement() {
       }
 
       const res = await fetch(`/api/users/${editingUser?.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to update user')
+        throw new Error(data.error || "Failed to update user")
       }
 
       const user: User = editingUser
@@ -122,7 +122,7 @@ export default function UserManagement() {
       setEditingUser(null)
       toast({
         title: "User Updated",
-        description: `${editingUser?.name}'s information has been updated.`,
+        description: `${editingUser?.name}"s information has been updated.`,
       })
 
     } catch (error: unknown) {
@@ -145,18 +145,18 @@ export default function UserManagement() {
   const deleteUser = async (id: number) => {
     try {
       // if (session?.user.id === id.toString()) {
-      //   throw new Error('User ID matches the session user ID.')
+      //   throw new Error("User ID matches the session user ID.")
       // }
       const res = await fetch(`/api/users/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to delete user')
+        throw new Error(data.error || "Failed to delete user")
       }
 
       const data = await res.json()
@@ -186,9 +186,9 @@ export default function UserManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/users')
+        const response = await fetch("/api/users")
         if (!response.ok) {
-          throw new Error('Failed to fetch users')
+          throw new Error("Failed to fetch users")
         }
         const data = await response.json()
         setUsers(data)

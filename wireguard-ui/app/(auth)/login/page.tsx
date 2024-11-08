@@ -20,10 +20,10 @@ export default function LoginForm() {
   const { status } = useSession()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const callback = searchParams.get('callbackUrl') || '/dashboard'
+  const callback = searchParams.get("callbackUrl") || "/dashboard"
 
   const handleCallback = (callbackUrl: string) => {
-    if (callbackUrl.startsWith('http')) {
+    if (callbackUrl.startsWith("http")) {
       const url = new URL(callbackUrl)
       return url.pathname
     }
