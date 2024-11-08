@@ -13,7 +13,6 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 interface Server {
   id: number
   name: string
-  private_key: string
   ip_address: string
   port: number
   status: string
@@ -21,7 +20,7 @@ interface Server {
 
 export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
-  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", private_key: "", ip_address: "", port: 51820, status: "Offline" })
+  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820, status: "Offline" })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
 
@@ -48,12 +47,11 @@ export default function WireGuardDashboard() {
       const newServerWithId: Server = {
         ...newServer,
         id: data.id,
-        private_key: data.private_key,
         ip_address: data.ip_address,
         port: data.port,
       }
       setServers([...servers, newServerWithId])
-      setNewServer({ name: "", private_key: "", ip_address: "", port: 51820, status: "Offline" })
+      setNewServer({ name: "", ip_address: "", port: 51820, status: "Offline" })
       toast({
         title: "Server Added",
         description: `${data.name} has been added successfully.`,
@@ -319,7 +317,6 @@ export default function WireGuardDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Private Key</TableHead>
                 <TableHead>IP Address</TableHead>
                 <TableHead>Port</TableHead>
                 <TableHead>Actions</TableHead>
@@ -329,7 +326,6 @@ export default function WireGuardDashboard() {
               {servers.map((server) => (
                 <TableRow key={server.id}>
                   <TableCell>{server.name}</TableCell>
-                  <TableCell>{server.private_key}</TableCell>
                   <TableCell>{server.ip_address}</TableCell>
                   <TableCell>{server.port}</TableCell>
                   <TableCell>
