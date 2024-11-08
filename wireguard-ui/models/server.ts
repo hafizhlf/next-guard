@@ -4,6 +4,7 @@ import sequelize from '../config/database';
 class Server extends Model {
   declare id: number;
   declare name: string;
+  declare private_key: string;
   declare ip_address: string;
   declare status: string;
   declare port: number;
@@ -18,6 +19,11 @@ Server.init({
     primaryKey: true,
   },
   name: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
+  },
+  private_key: {
     type: DataTypes.STRING,
     unique: true,
     allowNull: false,

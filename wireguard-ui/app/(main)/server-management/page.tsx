@@ -13,6 +13,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 interface Server {
   id: number
   name: string
+  private_key: string
   ip_address: string
   port: number
   status: string
@@ -20,8 +21,7 @@ interface Server {
 
 export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
-  const [ipAddress, setIpAddress] = useState("")
-  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820, status: "Offline" })
+  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", private_key: "", ip_address: "", port: 51820, status: "Offline" })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
 
@@ -34,7 +34,7 @@ export default function WireGuardDashboard() {
         },
         body: JSON.stringify({
           name: newServer.name,
-          ip_address: ipAddress,
+          ip_address: newServer.ip_address,
           port: newServer.port,
         }),
       })
@@ -48,11 +48,12 @@ export default function WireGuardDashboard() {
       const newServerWithId: Server = {
         ...newServer,
         id: data.id,
+        private_key: data.private_key,
         ip_address: data.ip_address,
         port: data.port,
       }
       setServers([...servers, newServerWithId])
-      setNewServer({ name: "", ip_address: "", port: 51820, status: "Offline" })
+      setNewServer({ name: "", private_key: "", ip_address: "", port: 51820, status: "Offline" })
       toast({
         title: "Server Added",
         description: `${data.name} has been added successfully.`,
@@ -83,19 +84,15 @@ export default function WireGuardDashboard() {
 
   const updateServer = async () => {
     try {
-      const updateData: { name?: string, port?: number } = {}
+      const updateData: { name?: string, port?: number, ip_address?: string } = {}
 
       if (!editingServer) {
         throw new Error("No server selected for editing")
       }
 
-      if (editingServer?.name) {
-        updateData.name = editingServer.name
-      }
-
-      if (editingServer?.port) {
-        updateData.port = editingServer.port
-      }
+      if (editingServer?.name) updateData.name = editingServer.name
+      if (editingServer?.ip_address) updateData.ip_address = editingServer.ip_address
+      if (editingServer?.port) updateData.port = editingServer.port
 
       const res = await fetch(`/api/server/${editingServer?.id}`, {
         method: "PUT",
@@ -250,29 +247,6 @@ export default function WireGuardDashboard() {
       }
     }
 
-    const getIpAddress = async () => {
-      try {
-        const response = await fetch("https://icanhazip.com/")
-        const ipAddress = await response.text()
-        setIpAddress(ipAddress)
-      } catch (err) {
-        if (err instanceof Error) {
-          toast({
-            title: "An error occurred",
-            description: err.message,
-            variant: "destructive",
-          })
-        } else {
-          toast({
-            title: "Something wrong",
-            description: "An unexpected error occurred",
-            variant: "destructive",
-          })
-        }
-      }
-    }
-
-    getIpAddress()
     fetchServers()
   }, [toast])
 
@@ -315,8 +289,8 @@ export default function WireGuardDashboard() {
                     </Label>
                     <Input
                       id="server-ip"
-                      value={ipAddress}
-                      disabled
+                      value={newServer.ip_address}
+                      onChange={(e) => setNewServer({ ...newServer, ip_address: e.target.value })}
                       className="col-span-3"
                     />
                   </div>
@@ -345,6 +319,7 @@ export default function WireGuardDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
+                <TableHead>Private Key</TableHead>
                 <TableHead>IP Address</TableHead>
                 <TableHead>Port</TableHead>
                 <TableHead>Actions</TableHead>
@@ -354,6 +329,7 @@ export default function WireGuardDashboard() {
               {servers.map((server) => (
                 <TableRow key={server.id}>
                   <TableCell>{server.name}</TableCell>
+                  <TableCell>{server.private_key}</TableCell>
                   <TableCell>{server.ip_address}</TableCell>
                   <TableCell>{server.port}</TableCell>
                   <TableCell>
@@ -388,7 +364,6 @@ export default function WireGuardDashboard() {
                               <Input
                                 id="edit-server-ip"
                                 value={editingServer?.ip_address || ""}
-                                disabled
                                 onChange={(e) => setEditingServer(editingServer ? { ...editingServer, ip_address: e.target.value } : null)}
                                 className="col-span-3"
                               />

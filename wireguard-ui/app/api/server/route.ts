@@ -3,8 +3,12 @@ import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
+import { isValidIpAddress } from '@/lib/utils'
+import { exec } from 'child_process'
+import { promisify } from 'util'
 
 export const dynamic = 'force-dynamic'
+const execAsync = promisify(exec)
 
 export async function GET() {
   try {
@@ -54,11 +58,21 @@ export async function POST(request: Request) {
     }
 
     const { name, ip_address, port } = await request.json()
+    const isValid = isValidIpAddress(ip_address)
 
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid IP address' },
+        { status: 400 }
+      )
+    }
+
+    const { stdout: private_key } = await execAsync('wg genkey')
     const server = await Server.create({
       name,
       ip_address,
       port,
+      private_key
     })
 
     return NextResponse.json(server, {status: 201})

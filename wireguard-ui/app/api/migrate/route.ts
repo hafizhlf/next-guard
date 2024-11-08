@@ -14,6 +14,7 @@ export async function GET() {
         "message": "Migrate successfully"
     })
   } catch (error) {
+    console.log(error)
     if (error instanceof DatabaseError) {
       const messages = "Database connection error"
       return NextResponse.json(

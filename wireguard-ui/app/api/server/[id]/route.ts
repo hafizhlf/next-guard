@@ -3,6 +3,12 @@ import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
+import { isValidIpAddress } from '@/lib/utils'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import { createWireguardFile } from '@/lib/wireguard'
+
+const execAsync = promisify(exec)
 
 export async function PUT(
   request: Request,
@@ -18,7 +24,7 @@ export async function PUT(
     }
 
     const data = await request.json()
-    const { name, port, status } = data
+    const { name, port, status, ip_address } = data
     const serverId = params.id
 
     const server = await Server.findByPk(serverId)
@@ -29,18 +35,43 @@ export async function PUT(
       )
     }
 
-    const updateData: { name?: string, port?: number, status?: string } = {}
+    const updateData: { name?: string, port?: number, status?: string, ip_address?: string } = {}
 
-    if (name) {
-      updateData.name = name
+    if (name) updateData.name = name
+    if (port) updateData.port = port
+    if (ip_address) updateData.ip_address = ip_address
+    if (status) updateData.status = status
+
+    const isValid = isValidIpAddress(ip_address)
+
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid IP address' },
+        { status: 400 }
+      )
     }
 
-    if (port) {
-      updateData.port = port
-    }
+    if (status === "Online") {
+      const filename = `${server.name}.conf`
+      const { stdout: privateKey } = await execAsync('wg genkey')
 
-    if (status) {
-      updateData.status = status
+      console.log(privateKey,'privateKey')
+
+      const content = `# WireGuard Configuration\n# Server name = ${server.name}\n[Interface]\nPrivateKey = +MzzWq1e3CZ9sz4pMlQQMu9vaK2GWK0CNmDp57smgGw=\nAddress = 10.8.0.1/24\nListenPort = ${server.port}\n`
+      try {
+        await createWireguardFile(filename, content)
+      } catch (fileError) {
+        let errorMessage = 'Failed to create WireGuard file'
+
+        if (fileError instanceof Error) {
+          errorMessage = `Failed to create WireGuard file: ${fileError.message}`
+        }
+
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: 500 }
+        )
+      }
     }
 
     const updatedServer = await server.update(updateData)
@@ -50,19 +81,19 @@ export async function PUT(
     if (error instanceof DatabaseError) {
       const messages = "Database connection error"
       return NextResponse.json(
-        { error: messages},
+        { error: messages },
         { status: 500 }
       )
     }
     if (error instanceof UniqueConstraintError) {
       const messages = error.errors.map(e => e.message)
       return NextResponse.json(
-        { error: messages},
+        { error: messages },
         { status: 500 }
       )
     }
     return NextResponse.json(
-      { error: 'Internal server error'},
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
@@ -100,19 +131,19 @@ export async function DELETE(
     if (error instanceof DatabaseError) {
       const messages = "Database connection error"
       return NextResponse.json(
-        { error: messages},
+        { error: messages },
         { status: 500 }
       )
     }
     if (error instanceof UniqueConstraintError) {
       const messages = error.errors.map(e => e.message)
       return NextResponse.json(
-        { error: messages},
+        { error: messages },
         { status: 500 }
       )
     }
     return NextResponse.json(
-      { error: 'Internal server error'},
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
