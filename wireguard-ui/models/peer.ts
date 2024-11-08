@@ -23,7 +23,7 @@ Peer.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'servers', // Matches the table name of the Server model
+      model: 'servers',
       key: 'id',
     },
     onUpdate: 'CASCADE',

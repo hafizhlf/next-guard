@@ -39,19 +39,55 @@ export default function WireGuardDashboard() {
   const [newClientName, setNewClientName] = useState("")
   const { toast } = useToast()
 
-  const addClient = (e: React.FormEvent) => {
+  const addClient = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (newClientName) {
+    try {
+      const res = await fetch("/api/peer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newClientName,
+          server_id: currentServers?.id,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Error creating server")
+      }
+
+      const data = await res.json()
+
       setClients([
         ...clients,
         {
-          id: clients.length + 1,
-          name: newClientName,
-          ip_address: `10.0.0.${clients.length + 2}`,
+          id: data.id,
+          name: data.name,
+          ip_address: data.ip_address,
           lastSeen: "Never",
         },
       ])
       setNewClientName("")
+      toast({
+        title: "Server Added",
+        description: `${data.name} has been added successfully.`,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -90,6 +126,46 @@ export default function WireGuardDashboard() {
 
     fetchServers()
   }, [toast])
+
+  useEffect(() => {
+    const fetchPeers = async () => {
+      try {
+        setClients([])
+        const response = await fetch(`/api/server/${currentServers?.id}/peer`)
+        if (!response.ok) {
+          throw new Error("Failed to fetch peers")
+        }
+        const data = await response.json()
+        if (data && data.length > 0) {
+          setClients(prevClients => [
+            ...prevClients,
+            ...data.map((item: Client) => ({
+              id: item.id,
+              name: item.name,
+              ip_address: item.ip_address,
+              lastSeen: "Never",
+            })),
+          ]);
+        }
+      } catch (err) {
+        if (err instanceof Error){
+          toast({
+            title: "An error occurred",
+            description: err.message,
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Something wrong",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          })
+        }
+      }
+    }
+
+    fetchPeers()
+  }, [currentServers])
 
   return (
     <div className="container mx-auto p-4">
