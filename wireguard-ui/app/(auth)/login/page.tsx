@@ -22,14 +22,6 @@ export default function LoginForm() {
   const router = useRouter()
   const callback = searchParams.get("callbackUrl") || "/dashboard"
 
-  const handleCallback = (callbackUrl: string) => {
-    if (callbackUrl.startsWith("http")) {
-      const url = new URL(callbackUrl)
-      return url.pathname
-    }
-    return callbackUrl
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg("")
@@ -58,10 +50,18 @@ export default function LoginForm() {
   }
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.push(handleCallback(callback))
+    const handleCallback = () => {
+      if (callback.startsWith("http")) {
+        const url = new URL(callback)
+        return url.pathname
+      }
+      return callback
     }
-  }, [status, callback, router])
+
+    if (status === "authenticated") {
+      router.push(handleCallback())
+    }
+  }, [status, router, callback])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

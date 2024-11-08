@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import bcrypt from 'bcryptjs'
@@ -9,7 +10,6 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check authentication
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
@@ -22,7 +22,6 @@ export async function PUT(
     const data = await request.json()
     const { name, password } = data
 
-    // Find user
     const user = await User.findByPk(userId)
     if (!user) {
       return NextResponse.json(
@@ -31,7 +30,6 @@ export async function PUT(
       )
     }
 
-    // Prepare update data
     const updateData: { name?: string, password?: string } = {}
 
     if (name) {
@@ -42,7 +40,6 @@ export async function PUT(
       updateData.password = await bcrypt.hash(password, 10)
     }
 
-    // Update user
     await user.update(updateData)
 
     // Return updated user without password
@@ -50,9 +47,22 @@ export async function PUT(
 
     return NextResponse.json(userWithoutPassword)
   } catch (error) {
-    console.error('Error updating user:', error)
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
+    if (error instanceof UniqueConstraintError) {
+      const messages = error.errors.map(e => e.message)
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error'},
       { status: 500 }
     )
   }
@@ -63,7 +73,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check authentication
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
@@ -81,7 +90,6 @@ export async function DELETE(
       )
     }
 
-    // Find user
     const user = await User.findByPk(userId)
     if (!user) {
       return NextResponse.json(
@@ -90,23 +98,28 @@ export async function DELETE(
       )
     }
 
-    if (user.username === "admin" || user.id === 1) {
-      return NextResponse.json(
-        { error: 'You cannot delete Administrator data.' },
-        { status: 403 }
-      )
-    }
-
-    // Delete user
     user.destroy()
     return NextResponse.json(
       { message: 'User deleted successfully' },
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error deleting user:', error)
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
+    if (error instanceof UniqueConstraintError) {
+      const messages = error.errors.map(e => e.message)
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error'},
       { status: 500 }
     )
   }

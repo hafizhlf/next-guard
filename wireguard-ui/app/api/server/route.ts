@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { UniqueConstraintError } from "sequelize"
+import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
@@ -8,8 +8,6 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    await Server.sync({ alter: true })
-
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
@@ -24,9 +22,22 @@ export async function GET() {
 
     return NextResponse.json(servers)
   } catch (error) {
-    console.error('Error fetching servers:', error)
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
+    if (error instanceof UniqueConstraintError) {
+      const messages = error.errors.map(e => e.message)
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error'},
       { status: 500 }
     )
   }
@@ -34,8 +45,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await Server.sync({ alter: true })
-
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
@@ -54,6 +63,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(server, {status: 201})
   } catch (error) {
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     if (error instanceof UniqueConstraintError) {
       const messages = error.errors.map(e => e.message)
       return NextResponse.json(

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { UniqueConstraintError } from "sequelize"
+import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
@@ -47,6 +47,13 @@ export async function PUT(
 
     return NextResponse.json(updatedServer)
   } catch (error) {
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     if (error instanceof UniqueConstraintError) {
       const messages = error.errors.map(e => e.message)
       return NextResponse.json(
@@ -90,9 +97,22 @@ export async function DELETE(
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error deleting server:', error)
+    if (error instanceof DatabaseError) {
+      const messages = "Database connection error"
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
+    if (error instanceof UniqueConstraintError) {
+      const messages = error.errors.map(e => e.message)
+      return NextResponse.json(
+        { error: messages},
+        { status: 500 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error'},
       { status: 500 }
     )
   }
