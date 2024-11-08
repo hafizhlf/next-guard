@@ -77,12 +77,18 @@ export async function POST(request: Request) {
     } else {
       next_ip = getNextIpAddress(server, latest_peer.ip_address)
     }
-    const { stdout: public_key_raw } = await execAsync(`echo ${server?.private_key} | wg pubkey`)
+    const { stdout: private_key_raw } = await execAsync('wg genkey')
+    const private_key = private_key_raw.trim()
+    const { stdout: public_key_raw } = await execAsync(`echo ${private_key} | wg pubkey`)
     const public_key = public_key_raw.trim()
+    const { stdout: preshared_key_raw } = await execAsync('wg genpsk')
+    const preshared_key = preshared_key_raw.trim()
     const peer = await Peer.create({
       server_id,
       name,
+      private_key,
       public_key,
+      preshared_key,
       ip_address: next_ip,
       allowed_ips: '0.0.0.0/0'
     })

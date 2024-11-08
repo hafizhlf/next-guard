@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    await Server.sync({ alter: true })
     await User.sync({ alter: true })
+    await Server.sync({ alter: true })
     await Peer.sync({ alter: true })
 
     return NextResponse.json({

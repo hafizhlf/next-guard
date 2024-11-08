@@ -69,11 +69,14 @@ export async function POST(request: Request) {
 
     const { stdout: private_key_raw } = await execAsync('wg genkey')
     const private_key = private_key_raw.trim()
+    const { stdout: public_key_raw } = await execAsync(`echo ${private_key} | wg pubkey`)
+    const public_key = public_key_raw.trim()
     const server = await Server.create({
       name,
+      private_key,
+      public_key,
       ip_address,
       port,
-      private_key
     })
 
     return NextResponse.json(server, {status: 201})
