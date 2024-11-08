@@ -18,7 +18,7 @@
 
 ## Requirements
 
--   Node.js 16+
+-   Node.js 18+
 -   WireGuard installed on the server
 -   Docker (optional for containerization)
 
