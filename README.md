@@ -27,7 +27,7 @@
 1. Clone the repository:
 ```
 git clone https://github.com/hafizhlf/next-guard.git
-cd wireguard-manager
+cd next-guard
 ```
 2. Install dependencies:
 ```
