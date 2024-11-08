@@ -4,11 +4,7 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
 import { isValidIpAddress } from '@/lib/utils'
-import { exec } from 'child_process'
-import { promisify } from 'util'
 import { createWireguardFile } from '@/lib/wireguard'
-
-const execAsync = promisify(exec)
 
 export async function PUT(
   request: Request,
