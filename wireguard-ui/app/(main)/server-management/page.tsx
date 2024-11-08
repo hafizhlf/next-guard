@@ -80,12 +80,61 @@ export default function WireGuardDashboard() {
     }
   }
 
-  const updateServer = () => {
-    if (editingServer) {
+  const updateServer = async () => {
+    try {
+      const updateData: { name?: string, port?: number } = {}
+
+      if (!editingServer) {
+        throw new Error('No server selected for editing')
+      }
+
+      if (editingServer?.name) {
+        updateData.name = editingServer.name
+      }
+
+      if (editingServer?.port) {
+        updateData.port = editingServer.port
+      }
+
+      const res = await fetch(`/api/server/${editingServer?.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to update server')
+      }
+
+      const data = await res.json()
+      console.log(data,'data')
+
       setServers(servers.map(server =>
-        server.id === editingServer.id ? editingServer : server
+        server.id === data.id ? data : server
       ))
       setEditingServer(null)
+
+      toast({
+        title: "Server Updated",
+        description: `${data.name}'s information has been updated.`,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -96,14 +145,14 @@ export default function WireGuardDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to delete server');
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to delete server')
       }
 
-      const data = await res.json();
+      const data = await res.json()
 
       setServers(servers.filter(server => server.id !== id))
       toast({
@@ -291,6 +340,7 @@ export default function WireGuardDashboard() {
                               <Input
                                 id="edit-server-ip"
                                 value={editingServer?.ip_address || ""}
+                                disabled
                                 onChange={(e) => setEditingServer(editingServer ? { ...editingServer, ip_address: e.target.value } : null)}
                                 className="col-span-3"
                               />
