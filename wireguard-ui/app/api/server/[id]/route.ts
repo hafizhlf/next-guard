@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOption'
 import Server from '@/models/server'
 import { isValidIpAddress } from '@/lib/utils'
-import { createWireguardFile } from '@/lib/wireguard'
+import { createWireguardFile, removeWireguardFile } from '@/lib/wireguard'
 
 export async function PUT(
   request: Request,
@@ -61,6 +61,23 @@ export async function PUT(
 
         if (fileError instanceof Error) {
           errorMessage = `Failed to create WireGuard file: ${fileError.message}`
+        }
+
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: 500 }
+        )
+      }
+    } else {
+      const filename = `${server.name}.conf`
+
+      try {
+        await removeWireguardFile(filename)
+      } catch (fileError) {
+        let errorMessage = 'Failed to remove WireGuard file'
+
+        if (fileError instanceof Error) {
+          errorMessage = `Failed to remove WireGuard file: ${fileError.message}`
         }
 
         return NextResponse.json(
