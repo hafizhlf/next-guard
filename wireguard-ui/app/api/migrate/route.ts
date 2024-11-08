@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { DatabaseError, UniqueConstraintError } from "sequelize"
+import { DatabaseError } from "sequelize"
 import Server from '@/models/server'
 import User from '@/models/user'
 
@@ -16,13 +16,6 @@ export async function GET() {
   } catch (error) {
     if (error instanceof DatabaseError) {
       const messages = "Database connection error"
-      return NextResponse.json(
-        { error: messages},
-        { status: 500 }
-      )
-    }
-    if (error instanceof UniqueConstraintError) {
-      const messages = error.errors.map(e => e.message)
       return NextResponse.json(
         { error: messages},
         { status: 500 }
