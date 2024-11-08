@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError } from "sequelize"
-import Server from '@/models/server'
 import User from '@/models/user'
+import Server from '@/models/server'
+import Peer from '@/models/peer'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,7 @@ export async function GET() {
   try {
     await Server.sync({ alter: true })
     await User.sync({ alter: true })
+    await Peer.sync({ alter: true })
 
     return NextResponse.json({
         "message": "Migrate successfully"
