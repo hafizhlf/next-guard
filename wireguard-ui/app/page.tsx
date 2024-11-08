@@ -7,8 +7,8 @@ export default function Index() {
   const router = useRouter()
 
   useEffect(() => {
-    router.push("/dashboard");
+    router.push("/dashboard")
   })
 
-  return null;
+  return null
 }

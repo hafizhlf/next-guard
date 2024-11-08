@@ -18,17 +18,17 @@ export default function LoginForm() {
   const [errorMsg, setErrorMsg] = useState("")
   const [loading, setloading] = useState(false)
   const { status } = useSession()
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const callback = searchParams.get('callbackUrl') || '/dashboard';
+  const callback = searchParams.get('callbackUrl') || '/dashboard'
 
   const handleCallback = (callbackUrl: string) => {
     if (callbackUrl.startsWith('http')) {
-      const url = new URL(callbackUrl);
-      return url.pathname;
+      const url = new URL(callbackUrl)
+      return url.pathname
     }
-    return callbackUrl;
-  };
+    return callbackUrl
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,20 +40,20 @@ export default function LoginForm() {
       redirect: false,
     })
     if (!response) {
-      setErrorMsg("Something went wrong.");
-      return;
+      setErrorMsg("Something went wrong.")
+      return
     }
     if (response.ok) {
-      return;
+      return
     }
     setloading(false)
     switch (response.error) {
       case "CredentialsSignin":
         setErrorMsg("Invalid credentials.")
-        return;
+        return
       default:
         setErrorMsg("Something went wrong.")
-        return;
+        return
     }
   }
 
@@ -61,7 +61,7 @@ export default function LoginForm() {
     if (status === "authenticated") {
       router.push(handleCallback(callback))
     }
-  }, [status, callback, router]);
+  }, [status, callback, router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

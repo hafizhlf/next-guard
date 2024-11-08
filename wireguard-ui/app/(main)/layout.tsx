@@ -1,10 +1,10 @@
-import Navigation from "@/components/navigation/navbar";
+import Navigation from "@/components/navigation/navbar"
 import { Toaster } from "@/components/ui/toaster"
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <div className="container mx-auto p-4">
@@ -12,5 +12,5 @@ export default function RootLayout({
       {children}
       <Toaster />
     </div>
-  );
+  )
 }

@@ -32,7 +32,7 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: { name?: string; password?: string } = {}
+    const updateData: { name?: string, password?: string } = {}
 
     if (name) {
       updateData.name = name
@@ -46,11 +46,11 @@ export async function PUT(
     await user.update(updateData)
 
     // Return updated user without password
-    const { password: _, ...userWithoutPassword } = user.get({ plain: true });
+    const { password: _, ...userWithoutPassword } = user.get({ plain: true })
 
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(userWithoutPassword)
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error('Error updating user:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -64,7 +64,7 @@ export async function DELETE(
 ) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -72,7 +72,7 @@ export async function DELETE(
       )
     }
 
-    const userId = params.id;
+    const userId = params.id
 
     if (session.user.id === userId) {
       return NextResponse.json(
@@ -82,7 +82,7 @@ export async function DELETE(
     }
 
     // Find user
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId)
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -104,7 +104,7 @@ export async function DELETE(
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error deleting user:', error);
+    console.error('Error deleting user:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

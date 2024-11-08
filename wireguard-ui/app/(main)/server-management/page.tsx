@@ -197,8 +197,6 @@ export default function WireGuardDashboard() {
       }
 
       const data = await res.json()
-      console.log(updateData,'updateData')
-      console.log(data,'data')
 
       setServers(servers.map(server =>
         server.id === data.id ? data : server

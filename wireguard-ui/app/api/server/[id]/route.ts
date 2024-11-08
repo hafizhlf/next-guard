@@ -9,7 +9,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -21,7 +21,7 @@ export async function PUT(
     const { name, port, status } = data
     const serverId = params.id
 
-    const server = await Server.findByPk(serverId);
+    const server = await Server.findByPk(serverId)
     if (!server) {
       return NextResponse.json(
         { error: 'Server not found' },
@@ -66,7 +66,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -74,9 +74,9 @@ export async function DELETE(
       )
     }
 
-    const serverId = params.id;
+    const serverId = params.id
 
-    const server = await Server.findByPk(serverId);
+    const server = await Server.findByPk(serverId)
     if (!server) {
       return NextResponse.json(
         { error: 'Server not found' },
@@ -90,7 +90,7 @@ export async function DELETE(
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error deleting server:', error);
+    console.error('Error deleting server:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

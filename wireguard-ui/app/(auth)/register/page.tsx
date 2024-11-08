@@ -65,11 +65,11 @@ export default function RegisterForm() {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (token) {
-      router.push('/');
+      router.push('/')
     }
-  }, [router]);
+  }, [router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

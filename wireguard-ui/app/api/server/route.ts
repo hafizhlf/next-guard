@@ -24,7 +24,7 @@ export async function GET() {
 
     return NextResponse.json(servers)
   } catch (error) {
-    console.error('Error fetching servers:', error);
+    console.error('Error fetching servers:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

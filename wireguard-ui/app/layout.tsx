@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
-import Providers from "@/components/Providers";
-import "./globals.css";
+import type { Metadata } from "next"
+import Providers from "@/components/Providers"
+import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Next-Guard",
   description: "Next-Guard Wireguard Manager",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
@@ -18,5 +18,5 @@ export default function RootLayout({
         <Providers>{children}</Providers>
       </body>
     </html>
-  );
+  )
 }
