@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ServerIcon, Pencil, Trash2 } from "lucide-react"
+import { ServerIcon, Pencil, Trash2, Square, Play } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
@@ -15,12 +15,13 @@ interface Server {
   name: string
   ip_address: string
   port: number
+  status: string
 }
 
 export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
   const [ipAddress, setIpAddress] = useState("")
-  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820 })
+  const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820, status: "Offline" })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
 
@@ -51,7 +52,7 @@ export default function WireGuardDashboard() {
         port: data.port,
       }
       setServers([...servers, newServerWithId])
-      setNewServer({ name: "", ip_address: "", port: 51820 })
+      setNewServer({ name: "", ip_address: "", port: 51820, status: "Offline" })
       toast({
         title: "Server Added",
         description: `${data.name} has been added successfully.`,
@@ -110,7 +111,6 @@ export default function WireGuardDashboard() {
       }
 
       const data = await res.json()
-      console.log(data,'data')
 
       setServers(servers.map(server =>
         server.id === data.id ? data : server
@@ -176,6 +176,56 @@ export default function WireGuardDashboard() {
     }
   }
 
+  const toggleServerStatus = async (id: number) => {
+    try {
+      const updateData: { status?: string } = {}
+
+      const server = servers.find((s) => s.id === id)
+      updateData.status = server?.status === "Online" ? "Offline" : "Online"
+
+      const res = await fetch(`/api/server/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to update server')
+      }
+
+      const data = await res.json()
+      console.log(updateData,'updateData')
+      console.log(data,'data')
+
+      setServers(servers.map(server =>
+        server.id === data.id ? data : server
+      ))
+      setEditingServer(null)
+
+      toast({
+        title: "Server Updated",
+        description: `${data.name}'s information has been updated.`,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchServers = async () => {
       try {
@@ -186,7 +236,7 @@ export default function WireGuardDashboard() {
         const data = await response.json()
         setServers(data)
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           toast({
             title: "An error occurred",
             description: err.message,
@@ -208,7 +258,7 @@ export default function WireGuardDashboard() {
         const ipAddress = await response.text()
         setIpAddress(ipAddress)
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           toast({
             title: "An error occurred",
             description: err.message,
@@ -367,6 +417,18 @@ export default function WireGuardDashboard() {
                       </Dialog>
                       <Button variant="outline" size="icon" onClick={() => deleteServer(server.id)}>
                         <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => toggleServerStatus(server.id)}
+                        className={server.status === "Online" ? "bg-red-100 hover:bg-red-200" : "bg-green-100 hover:bg-green-200"}
+                      >
+                        {server.status === "Online" ? (
+                          <Square className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>

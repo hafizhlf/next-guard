@@ -18,7 +18,7 @@ export async function PUT(
     }
 
     const data = await request.json()
-    const { name, port } = data
+    const { name, port, status } = data
     const serverId = params.id
 
     const server = await Server.findByPk(serverId);
@@ -29,7 +29,7 @@ export async function PUT(
       )
     }
 
-    const updateData: { name?: string; port?: number } = {}
+    const updateData: { name?: string, port?: number, status?: string } = {}
 
     if (name) {
       updateData.name = name
@@ -37,6 +37,10 @@ export async function PUT(
 
     if (port) {
       updateData.port = port
+    }
+
+    if (status) {
+      updateData.status = status
     }
 
     const updatedServer = await server.update(updateData)
