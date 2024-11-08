@@ -16,6 +16,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
+
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -26,8 +27,8 @@ export async function PUT(
     const data = await request.json()
     const { name, port, status, ip_address } = data
     const serverId = params.id
-
     const server = await Server.findByPk(serverId)
+
     if (!server) {
       return NextResponse.json(
         { error: 'Server not found' },
@@ -39,25 +40,24 @@ export async function PUT(
 
     if (name) updateData.name = name
     if (port) updateData.port = port
-    if (ip_address) updateData.ip_address = ip_address
     if (status) updateData.status = status
 
-    const isValid = isValidIpAddress(ip_address)
+    if (ip_address) {
+      const isValid = isValidIpAddress(ip_address)
 
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid IP address' },
-        { status: 400 }
-      )
+      if (!isValid) {
+        return NextResponse.json(
+          { error: 'Invalid IP address' },
+          { status: 400 }
+        )
+      }
+      updateData.ip_address = ip_address
     }
 
     if (status === "Online") {
       const filename = `${server.name}.conf`
-      const { stdout: privateKey } = await execAsync('wg genkey')
+      const content = `# WireGuard Configuration\n# Server name = ${server.name}\n[Interface]\nPrivateKey = ${server.private_key}\nAddress = ${server.ip_address}\nListenPort = ${server.port}\n`
 
-      console.log(privateKey,'privateKey')
-
-      const content = `# WireGuard Configuration\n# Server name = ${server.name}\n[Interface]\nPrivateKey = +MzzWq1e3CZ9sz4pMlQQMu9vaK2GWK0CNmDp57smgGw=\nAddress = 10.8.0.1/24\nListenPort = ${server.port}\n`
       try {
         await createWireguardFile(filename, content)
       } catch (fileError) {
