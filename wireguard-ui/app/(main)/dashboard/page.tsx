@@ -16,7 +16,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Plus, RefreshCw, Settings, Users } from "lucide-react"
+import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2 } from "lucide-react"
 
 interface Client {
   id: number
@@ -91,6 +91,44 @@ export default function WireGuardDashboard() {
     }
   }
 
+  const deletePeer = async (peerId: number) => {
+    try {
+      const res = await fetch(`/api/peer/${peerId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to delete peer")
+      }
+
+      const data = await res.json()
+
+      setClients(clients.filter(client => client.id !== peerId))
+      toast({
+        title: "Peer Deleted",
+        description: data.message,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   const getServerData = (serverId: string) => {
     const selectedServer = servers.find(server => server.id.toString() === serverId)
     if (selectedServer) {
@@ -108,7 +146,7 @@ export default function WireGuardDashboard() {
         const data = await response.json()
         setServers(data)
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           toast({
             title: "An error occurred",
             description: err.message,
@@ -148,7 +186,7 @@ export default function WireGuardDashboard() {
           ]);
         }
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           toast({
             title: "An error occurred",
             description: err.message,
@@ -164,7 +202,9 @@ export default function WireGuardDashboard() {
       }
     }
 
-    fetchPeers()
+    if (currentServers) {
+      fetchPeers()
+    }
   }, [currentServers])
 
   return (
@@ -219,10 +259,14 @@ export default function WireGuardDashboard() {
                       <TableCell>{client.ip_address}</TableCell>
                       <TableCell>{client.lastSeen}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Refresh
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="icon">
+                            <RefreshCw className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="icon" onClick={() => deletePeer(client.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

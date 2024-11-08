@@ -33,9 +33,16 @@ Peer.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  private_key: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   public_key: {
     type: DataTypes.STRING,
-    unique: true,
+    allowNull: false,
+  },
+  preshared_key: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   ip_address: {
