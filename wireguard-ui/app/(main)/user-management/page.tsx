@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from "components/ui/dialog"
 import { useSession } from "next-auth/react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "hooks/use-toast"
 import { Pencil, Trash2, UserPlus } from "lucide-react"
 
 type User = {

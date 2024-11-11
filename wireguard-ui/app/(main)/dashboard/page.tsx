@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "components/ui/select"
 import { Switch } from "components/ui/switch"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs"
 import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2 } from "lucide-react"
 

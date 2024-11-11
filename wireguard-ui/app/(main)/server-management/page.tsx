@@ -7,7 +7,7 @@ import { Label } from "components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card"
 import { ServerIcon, Pencil, Trash2, Square, Play } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "hooks/use-toast"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "components/ui/dialog"
 
 interface Server {

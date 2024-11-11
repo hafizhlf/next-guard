@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
-import authOptions from '@/lib/authOption'
-import User from '@/models/user'
+import authOptions from 'lib/authOption'
+import User from 'models/user'
 
 export const dynamic = 'force-dynamic'
 

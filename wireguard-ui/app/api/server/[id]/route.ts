@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
-import authOptions from '@/lib/authOption'
-import Server from '@/models/server'
-import { isValidIpAddress } from '@/lib/utils'
-import { createWireguardFile, removeWireguardFile } from '@/lib/wireguard'
+import authOptions from 'lib/authOption'
+import Server from 'models/server'
+import { isValidIpAddress } from 'lib/utils'
+import { createWireguardFile, removeWireguardFile } from 'lib/wireguard'
 
 export async function PUT(
   request: Request,

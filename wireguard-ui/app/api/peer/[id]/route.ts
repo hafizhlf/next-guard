@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
-import authOptions from '@/lib/authOption'
-import Peer from '@/models/peer'
+import authOptions from 'lib/authOption'
+import Peer from 'models/peer'
 
 
 export async function DELETE(

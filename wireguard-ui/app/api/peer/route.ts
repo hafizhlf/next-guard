@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
-import authOptions from '@/lib/authOption'
-import { getNextIpAddress } from '@/lib/utils'
-import Peer from '@/models/peer'
-import Server from '@/models/server'
+import authOptions from 'lib/authOption'
+import { getNextIpAddress } from 'lib/utils'
+import Peer from 'models/peer'
+import Server from 'models/server'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 

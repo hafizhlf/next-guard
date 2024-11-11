@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
-import authOptions from '@/lib/authOption'
+import authOptions from 'lib/authOption'
 import bcrypt from 'bcryptjs'
-import User from '@/models/user'
+import User from 'models/user'
 
 export async function PUT(
   request: Request,
