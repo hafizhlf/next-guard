@@ -1,8 +1,8 @@
 "use client"
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "components/ui/table"
+import { Card, CardContent, CardHeader } from "components/ui/card"
+import { Skeleton } from "components/ui/skeleton"
 
 
 export default function ServerManagementSkeleton() {
