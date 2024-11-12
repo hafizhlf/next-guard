@@ -65,6 +65,11 @@ export default function RegisterForm() {
   }
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENABLE_REGISTER_PAGE !== 'true') {
+      // Redirect to home or another page if registration is disabled
+      router.push('/login');
+    }
+
     const token = localStorage.getItem("token")
     if (token) {
       router.push("/")

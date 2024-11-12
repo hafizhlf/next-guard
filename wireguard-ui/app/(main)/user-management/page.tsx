@@ -29,7 +29,6 @@ type User = {
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
-
   const [newUser, setNewUser] = useState<Omit<User, "id">>({ name: "", username: "", password: "" })
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const { update } = useSession()
@@ -193,7 +192,7 @@ export default function UserManagement() {
         const data = await response.json()
         setUsers(data)
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           toast({
             title: "An error occurred",
             description: err.message,
