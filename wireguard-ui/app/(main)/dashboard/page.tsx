@@ -16,13 +16,18 @@ import {
 import { Switch } from "components/ui/switch"
 import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from 'components/ui/dialog'
 import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
+import { QRCodeSVG } from 'qrcode.react'
 
 interface Client {
   id: number
   name: string
   ip_address: string
   lastSeen: string
+  private_key: string
+  preshared_key: string
+  config: string
 }
 
 interface Server {
@@ -30,6 +35,7 @@ interface Server {
   name: string
   ip_address: string
   port: number
+  public_key: number
 }
 
 export default function WireGuardDashboard() {
@@ -67,6 +73,9 @@ export default function WireGuardDashboard() {
           name: data.name,
           ip_address: data.ip_address,
           lastSeen: "Never",
+          private_key: data.private_key,
+          preshared_key: data.preshared_key,
+          config: "",
         },
       ])
       setNewClientName("")
@@ -182,6 +191,21 @@ export default function WireGuardDashboard() {
               name: item.name,
               ip_address: item.ip_address,
               lastSeen: "Never",
+              private_key: item.private_key,
+              preshared_key: item.preshared_key,
+              config: 
+`[Interface]
+PrivateKey = ${item.private_key}
+Address = ${item.ip_address}
+DNS = 1.1.1.1, 8.8.8.8
+MTU = 1280
+
+[Peer]
+PublicKey = ${currentServers?.public_key}
+PresharedKey = ${item.preshared_key}
+AllowedIPs = 0.0.0.0/0
+Endpoint = 94.237.72.118:51820
+`
             })),
           ]);
         }
@@ -263,9 +287,21 @@ export default function WireGuardDashboard() {
                           <Button variant="outline" size="icon">
                             <RefreshCw className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="icon">
-                            <QrCode className="w-4 h-4" />
-                          </Button>
+                          {/* Dialog Trigger Button */}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="icon">
+                                <QrCode className="w-4 h-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogTitle>QR Code</DialogTitle>
+                              <DialogDescription>Scan the QR code for client details.</DialogDescription>
+                              <div className="flex justify-center">
+                                <QRCodeSVG value={client.config} size={256} />
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           <Button variant="outline" size="icon" onClick={() => deletePeer(client.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
