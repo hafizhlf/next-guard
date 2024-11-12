@@ -26,8 +26,6 @@ iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
   const WG_PRE_DOWN = '';
 
-  const filename = `${server.name}`;
-
   let content = `
 # WireGuard Configuration
 # Server name = ${server.name}

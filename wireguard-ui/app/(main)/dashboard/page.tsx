@@ -36,6 +36,7 @@ interface Server {
   ip_address: string
   port: number
   public_key: number
+  public_ip: string
 }
 
 export default function WireGuardDashboard() {
@@ -86,7 +87,7 @@ MTU = 1280
 PublicKey = ${currentServers?.public_key}
 PresharedKey = ${data.preshared_key}
 AllowedIPs = 0.0.0.0/0
-Endpoint = 94.237.72.118:51820
+Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
 `,
         },
       ])
@@ -236,7 +237,7 @@ MTU = 1280
 PublicKey = ${currentServers?.public_key}
 PresharedKey = ${item.preshared_key}
 AllowedIPs = 0.0.0.0/0
-Endpoint = 94.237.72.118:51820
+Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
 `
             })),
           ]);
@@ -376,7 +377,7 @@ Endpoint = 94.237.72.118:51820
                   <Label htmlFor="serverIP">Server IP</Label>
                   <p className="text-sm text-muted-foreground">The IP address of the WireGuard server used for client connections.</p>
                 </div>
-                <Input id="serverIP" className="w-[200px]" value={currentServers?.ip_address || "-"} readOnly disabled />
+                <Input id="serverIP" className="w-[200px]" value={currentServers?.public_ip || "-"} readOnly disabled />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">

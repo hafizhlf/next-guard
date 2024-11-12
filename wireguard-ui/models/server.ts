@@ -6,6 +6,7 @@ class Server extends Model {
   declare name: string;
   declare private_key: string;
   declare ip_address: string;
+  declare public_ip: string;
   declare status: string;
   declare port: number;
   declare readonly createdAt: Date;
@@ -35,6 +36,11 @@ Server.init({
     type: DataTypes.STRING,
     unique: true,
     allowNull: false,
+  },
+  public_ip: {
+    type: DataTypes.STRING,
+    unique: false,
+    allowNull: true,
   },
   port: {
     type: DataTypes.INTEGER,

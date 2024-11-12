@@ -3,7 +3,6 @@ import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from 'lib/authOption'
 import Server from 'models/server'
-import Peer from 'models/peer'
 import { isValidIpAddress } from 'lib/utils'
 import { prepareWireguardConfig, createWireguardFile, removeWireguardFile, startWireguardServer, stopWireguardServer } from 'lib/wireguard'
 

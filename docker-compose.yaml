@@ -4,16 +4,15 @@ volumes:
 services:
   next-guard:
     environment:
-    - NEXTAUTH_SECRET=roZIUjo0NdW0xCcnZPwIKAhnGIFMeskup9a7C3M1xgI=
-    - NEXTAUTH_URL=http://localhost:3000
+    - NEXTAUTH_SECRET= # openssl rand -base64 32
+    - NEXTAUTH_URL= # public url
     build: .
     container_name: next-guard
     volumes:
-      - etc_wireguard:/etc/wireguard
       - ./database:/app/database
     ports:
       - "51820:51820/udp"
-      - "3000:3000/tcp"
+      - "80:3000/tcp"
     restart: unless-stopped
     cap_add:
       - NET_ADMIN

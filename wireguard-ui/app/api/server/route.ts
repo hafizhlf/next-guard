@@ -67,15 +67,24 @@ export async function POST(request: Request) {
       )
     }
 
+    const public_ip_res = await fetch(`https://icanhazip.com/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
     const { stdout: private_key_raw } = await execAsync('wg genkey')
     const private_key = private_key_raw.trim()
     const { stdout: public_key_raw } = await execAsync(`echo ${private_key} | wg pubkey`)
     const public_key = public_key_raw.trim()
+    const public_ip = await public_ip_res.text()
     const server = await Server.create({
       name,
       private_key,
       public_key,
       ip_address,
+      public_ip,
       port,
     })
 
