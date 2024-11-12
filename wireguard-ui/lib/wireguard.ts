@@ -1,6 +1,67 @@
 import fs from 'fs'
 import path from 'path'
+import Server from 'models/server'
+import Peer from 'models/peer'
 import { exec } from 'child_process'
+
+export async function prepareWireguardConfig(serverId: number): Promise<string> {
+  // Fetch server data (replace this with your actual method to get server details)
+  const server = await Server.findByPk(serverId); // Assuming getServerById is a function to fetch server details by ID
+
+  if (!server) {
+    throw new Error(`Server with ID ${serverId} not found`);
+  }
+
+  const WG_PRE_UP = '';
+
+  const WG_POST_UP = `iptables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+iptables -A FORWARD -i wg0 -j ACCEPT;
+iptables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+
+  const WG_POST_DOWN = `iptables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+iptables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+iptables -D FORWARD -i wg0 -j ACCEPT;
+iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+
+  const WG_PRE_DOWN = '';
+
+  const filename = `${server.name}`;
+
+  let content = `
+# WireGuard Configuration
+# Server name = ${server.name}
+[Interface]
+PrivateKey = ${server.private_key}
+Address = ${server.ip_address}
+ListenPort = ${server.port}
+PreUp = ${WG_PRE_UP}
+PostUp = ${WG_POST_UP}
+PreDown = ${WG_PRE_DOWN}
+PostDown = ${WG_POST_DOWN}
+`;
+
+  // Fetch peers associated with the server
+  const peers = await Peer.findAll({
+    where: {
+      server_id: serverId,
+    },
+    order: [['id', 'asc']],
+  });
+
+  // Add peer configurations to the content
+  peers.forEach(peer => {
+    content += `
+
+# Client: ${peer.name} (${peer.id})
+[Peer]
+PublicKey = ${peer.public_key}
+${peer.preshared_key ? `PresharedKey = ${peer.preshared_key}\n` : ''}AllowedIPs = ${peer.ip_address}/32
+`;
+  });
+
+  return content;
+}
 
 /**
  * Creates a file in the /etc/wireguard/ directory.
@@ -171,6 +232,57 @@ export async function stopWireguardServer(filename: string): Promise<void> {
       throw new Error('Error stopping WireGuard server: ' + error.message);
     } else {
       throw new Error('An unknown error occurred while stopping the WireGuard server');
+    }
+  }
+}
+
+/**
+ * Reloads the WireGuard server with the specified configuration file.
+ *
+ * @param filename - The name of the configuration file to use (without '.conf').
+ * @throws Error if reloading the server fails or the filename is invalid.
+ */
+export async function reloadWireguardServer(filename: string): Promise<void> {
+  // Security check to prevent directory traversal attacks
+  if (!filename || filename.includes('/') || filename.includes('..')) {
+    throw new Error('Invalid filename');
+  }
+
+  try {
+    const isRunning = await new Promise<boolean>((resolve) => {
+      exec(`wg show ${filename}`, (error) => {
+        resolve(!error)
+      });
+    });
+
+    const server = await Server.findOne({
+      where: {
+        name: filename
+      }
+    })
+
+    if (server) {
+      const content = await prepareWireguardConfig(server.id)
+      await createWireguardFile(filename, content)
+    }
+
+    if (isRunning) {
+      await new Promise<void>((resolve, reject) => {
+        exec(`wg syncconf ${filename} <(wg-quick strip ${filename})`, { shell: 'bash' }, (error, stdout, stderr) => {
+          if (error) {
+            reject(new Error(`Failed to reload WireGuard server: ${stderr || (error as Error).message}`));
+            return;
+          }
+          console.log(`WireGuard server reloaded: ${stdout}`);
+          resolve();
+        });
+      });
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error reloading WireGuard server: ' + error.message);
+    } else {
+      throw new Error('An unknown error occurred while reloading the WireGuard server');
     }
   }
 }

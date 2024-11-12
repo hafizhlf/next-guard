@@ -5,7 +5,7 @@ import authOptions from 'lib/authOption'
 import Server from 'models/server'
 import Peer from 'models/peer'
 import { isValidIpAddress } from 'lib/utils'
-import { createWireguardFile, removeWireguardFile, startWireguardServer, stopWireguardServer } from 'lib/wireguard'
+import { prepareWireguardConfig, createWireguardFile, removeWireguardFile, startWireguardServer, stopWireguardServer } from 'lib/wireguard'
 
 export async function PUT(
   request: Request,
@@ -52,46 +52,8 @@ export async function PUT(
     }
 
     if (status === "Online") {
-      const WG_PRE_UP = ''
-      const WG_POST_UP = `iptables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
-iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
-iptables -A FORWARD -i wg0 -j ACCEPT;
-iptables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ')
-      const WG_POST_DOWN = `iptables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
-iptables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
-iptables -D FORWARD -i wg0 -j ACCEPT;
-iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ')
-      const WG_PRE_DOWN = ''
-
       const filename = `${server.name}`
-      let content =
-        `# WireGuard Configuration
-# Server name = ${server.name}
-[Interface]
-PrivateKey = ${server.private_key}
-Address = ${server.ip_address}
-ListenPort = ${server.port}
-PreUp = ${WG_PRE_UP}
-PostUp = ${WG_POST_UP}
-PreDown = ${WG_PRE_DOWN}
-PostDown = ${WG_POST_DOWN}
-`
-
-      const peers = await Peer.findAll({
-        where: {
-          server_id: serverId,
-        },
-        order: [['id', 'asc']]
-      })
-
-      peers.forEach(peer => {
-        content += `
-
-# Client: ${peer.name} (${peer.id})
-[Peer]
-PublicKey = ${peer.public_key}
-${peer.preshared_key ? `PresharedKey = ${peer.preshared_key}\n` : ''}AllowedIPs = ${peer.ip_address}/32
-`})
+      const content = await prepareWireguardConfig(server.id)
 
       try {
         await createWireguardFile(filename, content)

@@ -1,0 +1,24 @@
+volumes:
+  etc_wireguard:
+
+services:
+  next-guard:
+    environment:
+    - NEXTAUTH_SECRET=roZIUjo0NdW0xCcnZPwIKAhnGIFMeskup9a7C3M1xgI=
+    - NEXTAUTH_URL=http://localhost:3000
+    build: .
+    container_name: next-guard
+    volumes:
+      - etc_wireguard:/etc/wireguard
+      - ./database:/app/database
+    ports:
+      - "51820:51820/udp"
+      - "3000:3000/tcp"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+      - NET_RAW
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1

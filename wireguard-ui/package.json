@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx wireguard.js && next dev --turbo",
+    "dev": "tsx wireguard.ts && next dev --turbo",
     "build": "next build",
-    "start": "tsx wireguard.js && next start",
+    "start": "tsx wireguard.ts && next start",
     "lint": "next lint",
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo",

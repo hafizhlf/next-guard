@@ -2,7 +2,7 @@
 import { createWireguardFile, removeWireguardFile, startWireguardServer, stopWireguardServer } from './lib/wireguard'
 import Server from './models/server'
 
-async function main() {
+async function main(): Promise<void> {
   try {
     // Fetch all servers from the database
     const servers = await Server.findAll()
@@ -16,7 +16,7 @@ async function main() {
     for (const server of servers) {
       if (server.status === "Online") {
         // Assuming the server object has a 'filename' or a related field
-        const filename = server.name // Get filename from server record
+        const filename: string = server.name // Get filename from server record
         try {
           await startWireguardServer(filename)
           console.log(`WireGuard server for ${server.id} started successfully`)

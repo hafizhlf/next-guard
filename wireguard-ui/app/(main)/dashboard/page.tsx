@@ -1,22 +1,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "components/ui/button"
-import { Input } from "components/ui/input"
-import { Label } from "components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select"
-import { Switch } from "components/ui/switch"
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { useToast } from "hooks/use-toast"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from 'components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -75,10 +75,32 @@ export default function WireGuardDashboard() {
           lastSeen: "Never",
           private_key: data.private_key,
           preshared_key: data.preshared_key,
-          config: "",
+          config:
+            `[Interface]
+PrivateKey = ${data.private_key}
+Address = ${data.ip_address}
+DNS = 1.1.1.1, 8.8.8.8
+MTU = 1280
+
+[Peer]
+PublicKey = ${currentServers?.public_key}
+PresharedKey = ${data.preshared_key}
+AllowedIPs = 0.0.0.0/0
+Endpoint = 94.237.72.118:51820
+`,
         },
       ])
       setNewClientName("")
+      const res_reload = await fetch(`/api/server/${currentServers?.id}/reload`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      if (!res_reload.ok) {
+        const data = await res_reload.json()
+        throw new Error(data.error || "Error creating server")
+      }
       toast({
         title: "Server Added",
         description: `${data.name} has been added successfully.`,
@@ -117,6 +139,16 @@ export default function WireGuardDashboard() {
       const data = await res.json()
 
       setClients(clients.filter(client => client.id !== peerId))
+      const res_reload = await fetch(`/api/server/${currentServers?.id}/reload`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      if (!res_reload.ok) {
+        const data = await res_reload.json()
+        throw new Error(data.error || "Error creating server")
+      }
       toast({
         title: "Peer Deleted",
         description: data.message,
@@ -193,8 +225,8 @@ export default function WireGuardDashboard() {
               lastSeen: "Never",
               private_key: item.private_key,
               preshared_key: item.preshared_key,
-              config: 
-`[Interface]
+              config:
+                `[Interface]
 PrivateKey = ${item.private_key}
 Address = ${item.ip_address}
 DNS = 1.1.1.1, 8.8.8.8

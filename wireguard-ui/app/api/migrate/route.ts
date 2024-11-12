@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError } from "sequelize"
+import bcrypt from 'bcryptjs'
 import User from 'models/user'
 import Server from 'models/server'
 import Peer from 'models/peer'
@@ -11,6 +12,22 @@ export async function GET() {
     await User.sync({ alter: true })
     await Server.sync({ alter: true })
     await Peer.sync({ alter: true })
+
+    const admin = await User.findOne({
+      where: {
+        username: "admin"
+      }
+    })
+
+    const hashedPassword = await bcrypt.hash("admin", 10)
+
+    if (!admin) {
+      await User.create({
+        username: "admin",
+        password: hashedPassword,
+        name: "Administrator",
+      })
+    }
 
     return NextResponse.json({
         "message": "Migrate successfully"

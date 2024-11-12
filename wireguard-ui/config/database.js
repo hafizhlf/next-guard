@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 const config = {
   development: {
     dialect: 'sqlite',
-    storage: './database.sqlite',
+    storage: './database/database.sqlite',
     logging: false,
     pool: {
       max: 1,
@@ -26,7 +26,7 @@ const config = {
   },
   production: {
     dialect: 'sqlite',
-    storage: './database.sqlite',
+    storage: './database/database.sqlite',
     logging: false,
     pool: {
       max: 1,
