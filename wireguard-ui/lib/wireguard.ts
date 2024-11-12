@@ -23,7 +23,7 @@ export async function createWireguardFile(filename: string, content: string): Pr
   try {
     // Write content to the file with secure permissions
     fs.writeFileSync(filePath, content, { mode: 0o600 }) // Mode 600 for security
-  } catch (error) {
+  } catch {
     throw new Error('File creation failed')
   }
 }
@@ -51,9 +51,22 @@ export async function removeWireguardFile(filename: string): Promise<void> {
       return
     }
     fs.unlinkSync(filePath)
-  } catch (error) {
+  } catch {
     throw new Error('File removal failed')
   }
+}
+
+// Check if WireGuard interface exists
+const checkWireGuardInterfaceExists = (interfaceName: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    exec(`wg show ${interfaceName}`, (err, stderr) => {
+      if (err || stderr) {
+        reject(new Error(`WireGuard interface ${interfaceName} does not exist.`))
+      } else {
+        resolve(true)
+      }
+    })
+  })
 }
 
 /**
@@ -68,36 +81,42 @@ export async function startWireguardServer(filename: string): Promise<void> {
     throw new Error('Invalid filename')
   }
 
-  filename = filename + '.conf'
-
-  // Define the path to the WireGuard configuration file
-  const filePath = path.join('/etc/wireguard', filename)
-
   try {
-    // Check if the file exists
-    if (!fs.existsSync(filePath)) {
-      throw new Error('Configuration file does not exist')
-    }
+    // Check if the WireGuard interface exists
+    await checkWireGuardInterfaceExists(filename)
+    console.log(`WireGuard server for ${filename} is already running.`)
+  } catch {
+    filename = filename + '.conf'
 
-    // Use `wg-quick up` to start the WireGuard server with the specified configuration file
-    await new Promise<void>((resolve, reject) => {
-      exec(`wg-quick up ${filePath}`, (error, stdout, stderr) => {
-        if (error) {
-          reject(new Error(`Failed to start WireGuard server: ${stderr || error.message}`))
-          return
-        }
-        console.log(`WireGuard server started: ${stdout}`)
-        resolve()
+    // Define the path to the WireGuard configuration file
+    const filePath = path.join('/etc/wireguard', filename)
+    try {
+      // Check if the file exists
+      if (!fs.existsSync(filePath)) {
+        throw new Error('Configuration file does not exist')
+      }
+
+      // Use `wg-quick up` to start the WireGuard server with the specified configuration file
+      await new Promise<void>((resolve, reject) => {
+        exec(`wg-quick up ${filePath}`, (error, stdout, stderr) => {
+          if (error) {
+            reject(new Error(`Failed to start WireGuard server: ${stderr || error.message}`))
+            return
+          }
+          console.log(`WireGuard server started: ${stdout}`)
+          resolve()
+        })
       })
-    })
-  } catch (error) {
-    // Check if error is an instance of Error to safely access `message`
-    if (error instanceof Error) {
-      throw new Error('Error starting WireGuard server: ' + error.message)
-    } else {
-      throw new Error('An unknown error occurred while starting the WireGuard server')
+    } catch (error) {
+      // Check if error is an instance of Error to safely access `message`
+      if (error instanceof Error) {
+        throw new Error('Error starting WireGuard server: ' + error.message)
+      } else {
+        throw new Error('An unknown error occurred while starting the WireGuard server')
+      }
     }
   }
+
 }
 
 /**
@@ -125,7 +144,7 @@ export async function stopWireguardServer(filename: string): Promise<void> {
 
     // Check if WireGuard server is already stopped
     const isRunning = await new Promise<boolean>((resolve) => {
-      exec(`wg show ${path.basename(filePath, '.conf')}`, (error, stdout, stderr) => {
+      exec(`wg show ${path.basename(filePath, '.conf')}`, (error) => {
         resolve(!error); // If `wg show` has no error, the server is running
       });
     });

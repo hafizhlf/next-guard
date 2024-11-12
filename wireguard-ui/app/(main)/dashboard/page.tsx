@@ -205,7 +205,7 @@ export default function WireGuardDashboard() {
     if (currentServers) {
       fetchPeers()
     }
-  }, [currentServers])
+  }, [currentServers, toast])
 
   return (
     <div className="container mx-auto p-4">
