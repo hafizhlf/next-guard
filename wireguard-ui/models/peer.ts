@@ -5,7 +5,9 @@ class Peer extends Model {
   declare id: number
   declare server_id: number
   declare name: string
+  declare private_key: string
   declare public_key: string
+  declare preshared_key: string
   declare ip_address: string
   declare allowed_ips: string
   declare status: string

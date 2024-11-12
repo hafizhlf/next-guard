@@ -16,7 +16,7 @@ import {
 import { Switch } from "components/ui/switch"
 import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs"
-import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2 } from "lucide-react"
+import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
 
 interface Client {
   id: number
@@ -262,6 +262,9 @@ export default function WireGuardDashboard() {
                         <div className="flex space-x-2">
                           <Button variant="outline" size="icon">
                             <RefreshCw className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="icon">
+                            <QrCode className="w-4 h-4" />
                           </Button>
                           <Button variant="outline" size="icon" onClick={() => deletePeer(client.id)}>
                             <Trash2 className="h-4 w-4" />

@@ -3,8 +3,9 @@ import { DatabaseError, UniqueConstraintError } from "sequelize"
 import { getServerSession } from 'next-auth'
 import authOptions from 'lib/authOption'
 import Server from 'models/server'
+import Peer from 'models/peer'
 import { isValidIpAddress } from 'lib/utils'
-import { createWireguardFile, removeWireguardFile } from 'lib/wireguard'
+import { createWireguardFile, removeWireguardFile, startWireguardServer, stopWireguardServer } from 'lib/wireguard'
 
 export async function PUT(
   request: Request,
@@ -51,11 +52,50 @@ export async function PUT(
     }
 
     if (status === "Online") {
-      const filename = `${server.name}.conf`
-      const content = `# WireGuard Configuration\n# Server name = ${server.name}\n[Interface]\nPrivateKey = ${server.private_key}\nAddress = ${server.ip_address}\nListenPort = ${server.port}\n`
+      const WG_PRE_UP = ''
+      const WG_POST_UP = `iptables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+iptables -A FORWARD -i wg0 -j ACCEPT;
+iptables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ')
+      const WG_POST_DOWN = `iptables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+iptables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+iptables -D FORWARD -i wg0 -j ACCEPT;
+iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ')
+      const WG_PRE_DOWN = ''
+
+      const filename = `${server.name}`
+      let content =
+        `# WireGuard Configuration
+# Server name = ${server.name}
+[Interface]
+PrivateKey = ${server.private_key}
+Address = ${server.ip_address}
+ListenPort = ${server.port}
+PreUp = ${WG_PRE_UP}
+PostUp = ${WG_POST_UP}
+PreDown = ${WG_PRE_DOWN}
+PostDown = ${WG_POST_DOWN}
+`
+
+      const peers = await Peer.findAll({
+        where: {
+          server_id: serverId,
+        },
+        order: [['id', 'asc']]
+      })
+
+      peers.forEach(peer => {
+        content += `
+
+# Client: ${peer.name} (${peer.id})
+[Peer]
+PublicKey = ${peer.public_key}
+${peer.preshared_key ? `PresharedKey = ${peer.preshared_key}\n` : ''}AllowedIPs = ${peer.ip_address}/32
+`})
 
       try {
         await createWireguardFile(filename, content)
+        await startWireguardServer(filename)
       } catch (fileError) {
         let errorMessage = 'Failed to create WireGuard file'
 
@@ -69,9 +109,10 @@ export async function PUT(
         )
       }
     } else {
-      const filename = `${server.name}.conf`
+      const filename = `${server.name}`
 
       try {
+        await stopWireguardServer(filename)
         await removeWireguardFile(filename)
       } catch (fileError) {
         let errorMessage = 'Failed to remove WireGuard file'
