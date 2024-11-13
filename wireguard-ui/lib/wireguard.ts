@@ -19,7 +19,7 @@ iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 iptables -A FORWARD -i wg0 -j ACCEPT;
 iptables -A FORWARD -o wg0 -j ACCEPT;
 ip6tables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
-ip6tables -A INPUT -p udp -m udp --dport ${server.ip_address} -j ACCEPT;
+ip6tables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 ip6tables -A FORWARD -i wg0 -j ACCEPT;
 ip6tables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
