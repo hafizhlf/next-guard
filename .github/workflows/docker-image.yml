@@ -38,6 +38,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          provenance: false
           tags: ghcr.io/${{ github.repository }}/next-guard:latest
 
       # Optionally, tag with the commit SHA or branch name
@@ -47,6 +48,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/${{ github.repository }}/next-guard:${{ github.sha }}
             ghcr.io/${{ github.repository }}/next-guard:${{ github.ref_name }}
