@@ -1,6 +1,4 @@
-# As a workaround we have to build on nodejs 18
-# nodejs 20 hangs on build with armv6/armv7
-FROM docker.io/library/node:lts-alpine AS build_node_modules
+FROM docker.io/library/node:18-slim AS build_node_modules
 
 # Update npm to latest
 RUN npm install -g npm@latest
@@ -12,26 +10,17 @@ RUN npm ci &&\
     npm run build &&\
     mv node_modules /node_modules
 
-# Copy build result to a new image.
-# This saves a lot of disk space.
-FROM docker.io/library/node:lts-alpine
+FROM docker.io/library/node:18-slim
 HEALTHCHECK CMD /usr/bin/timeout 5s /bin/sh -c "/usr/bin/wg show | /bin/grep -q interface || exit 1" --interval=1m --timeout=5s --retries=3
 COPY --from=build_node_modules /app /app
 
 COPY --from=build_node_modules /node_modules /node_modules
 
 # Install Linux packages
-RUN apk add --no-cache \
-    dpkg \
-    dumb-init \
+RUN apt-get update && apt-get install -y \
     iptables \
-    ip6tables \
-    iptables-legacy \
-    wireguard-tools
-
-# Use iptables-legacy
-RUN update-alternatives --install /sbin/iptables iptables /sbin/iptables-legacy 10 --slave /sbin/iptables-restore iptables-restore /sbin/iptables-legacy-restore --slave /sbin/iptables-save iptables-save /sbin/iptables-legacy-save
-RUN update-alternatives --install /sbin/ip6tables ip6tables /sbin/ip6tables-legacy 10 --slave /sbin/ip6tables-restore ip6tables-restore /sbin/ip6tables-legacy-restore --slave /sbin/ip6tables-save ip6tables-save /sbin/ip6tables-legacy-save
+    wireguard-tools && \
+    apt-get clean
 
 # Set Environment
 ENV NODE_ENV=production
