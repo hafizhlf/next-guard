@@ -17,20 +17,12 @@ export async function prepareWireguardConfig(serverId: number): Promise<string> 
   const WG_POST_UP = `iptables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
 iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 iptables -A FORWARD -i wg0 -j ACCEPT;
-iptables -A FORWARD -o wg0 -j ACCEPT;
-ip6tables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
-ip6tables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
-ip6tables -A FORWARD -i wg0 -j ACCEPT;
-ip6tables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+iptables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
   const WG_POST_DOWN = `iptables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
 iptables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 iptables -D FORWARD -i wg0 -j ACCEPT;
-iptables -D FORWARD -o wg0 -j ACCEPT;
-ip6tables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
-ip6tables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
-ip6tables -D FORWARD -i wg0 -j ACCEPT;
-ip6tables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
   const WG_PRE_DOWN = '';
 
