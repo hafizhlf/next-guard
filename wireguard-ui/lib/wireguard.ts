@@ -37,6 +37,7 @@ PreUp = ${WG_PRE_UP}
 PostUp = ${WG_POST_UP}
 PreDown = ${WG_PRE_DOWN}
 PostDown = ${WG_POST_DOWN}
+MTU = 1420
 `;
 
   // Fetch peers associated with the server
