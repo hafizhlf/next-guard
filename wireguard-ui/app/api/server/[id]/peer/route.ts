@@ -30,23 +30,23 @@ export async function GET(
     })
 
     const convertRate = (bytes: number) => {
-      const kilobytes = bytes / 1024 // Convert bytes to kilobytes
+      const kilobytes = bytes / 1000 // Convert bytes to kilobytes
 
       // Determine unit based on size
-      if (kilobytes < 1024) {
+      if (kilobytes < 1000) {
         // Less than 1 KB, return as KB
         return { value: kilobytes, unit: 'KB' }
-      } else if (kilobytes < 1048576) {
+      } else if (kilobytes < 1000000) {
         // Less than 1 MB, return as MB
-        const mb = kilobytes / 1024
+        const mb = kilobytes / 1000
         return { value: mb, unit: 'MB' }
-      } else if (kilobytes < 1073741824) {
+      } else if (kilobytes < 1000000000) {
         // Less than 1 GB, return as GB
-        const gb = kilobytes / 1048576
+        const gb = kilobytes / 1000000
         return { value: gb, unit: 'GB' }
       } else {
         // Greater than or equal to 1 GB, return as GB
-        const gb = kilobytes / 1048576
+        const gb = kilobytes / 1000000
         return { value: gb, unit: 'GB' }
       }
     }
