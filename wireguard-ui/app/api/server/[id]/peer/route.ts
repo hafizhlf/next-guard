@@ -29,25 +29,24 @@ export async function GET(
       order: [['id', 'asc']]
     })
 
-    const convertRate = (bit: number) => {
-      const bytes = bit / 8 // Convert bits to bytes
-      const kilobytes = bytes / 1000 // Convert bytes to kilobytes
+    const convertRate = (bytes: number) => {
+      const kilobytes = bytes / 1024 // Convert bytes to kilobytes
 
       // Determine unit based on size
-      if (kilobytes < 1000) {
+      if (kilobytes < 1024) {
         // Less than 1 KB, return as KB
         return { value: kilobytes, unit: 'KB' }
-      } else if (kilobytes < 1000000) {
+      } else if (kilobytes < 1048576) {
         // Less than 1 MB, return as MB
-        const mb = kilobytes / 1000
+        const mb = kilobytes / 1024
         return { value: mb, unit: 'MB' }
-      } else if (kilobytes < 1000000000) {
+      } else if (kilobytes < 1073741824) {
         // Less than 1 GB, return as GB
-        const gb = kilobytes / 1000000
+        const gb = kilobytes / 1048576
         return { value: gb, unit: 'GB' }
       } else {
         // Greater than or equal to 1 GB, return as GB
-        const gb = kilobytes / 1000000
+        const gb = kilobytes / 1048576
         return { value: gb, unit: 'GB' }
       }
     }
