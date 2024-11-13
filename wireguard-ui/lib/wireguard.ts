@@ -119,8 +119,8 @@ export async function removeWireguardFile(filename: string): Promise<void> {
 // Check if WireGuard interface exists
 const checkWireGuardInterfaceExists = (interfaceName: string): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-    exec(`wg show ${interfaceName}`, (err, stderr) => {
-      if (err || stderr) {
+    exec(`wg show ${interfaceName}`, (err) => {
+      if (err) {
         reject(new Error(`WireGuard interface ${interfaceName} does not exist.`))
       } else {
         resolve(true)

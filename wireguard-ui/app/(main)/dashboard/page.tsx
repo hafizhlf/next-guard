@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -32,7 +32,7 @@ interface Client {
 }
 
 interface Server {
-  id: number
+  id: string
   name: string
   ip_address: string
   port: number
@@ -45,7 +45,6 @@ export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
   const [currentServers, setCurrentServers] = useState<Server>()
   const [newClientName, setNewClientName] = useState("")
-  const [selectedServer, setSelectedServer] = useState("")
   const { toast } = useToast()
 
   const addClient = async (e: React.FormEvent) => {
@@ -174,12 +173,12 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
     }
   }
 
-  const getServerData = (serverId: string) => {
-    const selectedServer = servers.find(server => server.id.toString() === serverId)
+  const getServerData = useCallback((serverId: string) => {
+    const selectedServer = servers.find(server => server.id === serverId)
     if (selectedServer) {
       setCurrentServers(selectedServer)
     }
-  }
+  }, [servers])
 
   useEffect(() => {
     const fetchServers = async () => {
@@ -218,7 +217,6 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
           throw new Error("Failed to fetch peers")
         }
         const data = await response.json()
-        console.log(data)
         if (data && data.length > 0) {
           setClients([])
           setClients(prevClients => [
@@ -247,7 +245,6 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
             })),
           ]);
         }
-        console.log(clients)
       } catch (err) {
         if (err instanceof Error) {
           toast({
@@ -272,8 +269,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
 
   useEffect(() => {
     if (servers.length > 0) {
-      setSelectedServer(servers[0].id.toString());
-      getServerData(servers[0].id.toString());
+      getServerData(servers[0].id)
     }
   }, [servers, getServerData])
 
@@ -292,13 +288,13 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
           </TabsTrigger>
         </TabsList>
         <div className="float-right">
-          <Select onValueChange={getServerData} value={selectedServer}>
+          <Select value={currentServers?.id} onValueChange={getServerData}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select a server" />
             </SelectTrigger>
             <SelectContent>
               {servers.map((server) => (
-                <SelectItem key={server.id} value={server.id.toString()}>
+                <SelectItem key={server.id} value={server.id}>
                   {server.name}
                 </SelectItem>
               ))}
