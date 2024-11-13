@@ -285,3 +285,27 @@ export async function reloadWireguardServer(filename: string): Promise<void> {
     }
   }
 }
+
+export async function peerTransferRate(peer: string): Promise<{ received: number, sent: number }> {
+  try {
+    return await new Promise<{ received: number, sent: number }>((resolve, reject) => {
+      exec(`wg show wg0 transfer | grep -A 5 "${peer}"`, { shell: 'bash' }, (error, stdout, stderr) => {
+        if (error) {
+          reject(new Error(`Failed to get Peer Rate: ${stderr || (error as Error).message}`));
+          return;
+        }
+        const cleanedStdout = stdout.replace(/\s+/g, ' ').trim()
+        const parts = cleanedStdout.split(' ')
+        const received = Number(parts[1])
+        const sent = Number(parts[2])
+        resolve({ received, sent })
+      });
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error reloading WireGuard server: ' + error.message);
+    } else {
+      throw new Error('An unknown error occurred while reloading the WireGuard server');
+    }
+  }
+}

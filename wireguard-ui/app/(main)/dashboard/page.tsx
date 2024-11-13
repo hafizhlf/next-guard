@@ -24,9 +24,10 @@ interface Client {
   id: number
   name: string
   ip_address: string
-  lastSeen: string
   private_key: string
   preshared_key: string
+  received: string
+  sent: string
   config: string
 }
 
@@ -74,9 +75,10 @@ export default function WireGuardDashboard() {
           id: data.id,
           name: data.name,
           ip_address: data.ip_address,
-          lastSeen: "Never",
           private_key: data.private_key,
           preshared_key: data.preshared_key,
+          received: data.received,
+          sent: data.sent,
           config:
             `[Interface]
 PrivateKey = ${data.private_key}
@@ -216,6 +218,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
           throw new Error("Failed to fetch peers")
         }
         const data = await response.json()
+        console.log(data)
         if (data && data.length > 0) {
           setClients([])
           setClients(prevClients => [
@@ -224,9 +227,10 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
               id: item.id,
               name: item.name,
               ip_address: item.ip_address,
-              lastSeen: "Never",
               private_key: item.private_key,
               preshared_key: item.preshared_key,
+              received: item.received,
+              sent: item.sent,
               config:
                 `[Interface]
 PrivateKey = ${item.private_key}
@@ -243,6 +247,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
             })),
           ]);
         }
+        console.log(clients)
       } catch (err) {
         if (err instanceof Error) {
           toast({
@@ -313,7 +318,8 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>IP Address</TableHead>
-                    <TableHead>Last Seen</TableHead>
+                    <TableHead>Received</TableHead>
+                    <TableHead>Sent</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -322,7 +328,8 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                     <TableRow key={client.id}>
                       <TableCell>{client.name}</TableCell>
                       <TableCell>{client.ip_address}</TableCell>
-                      <TableCell>{client.lastSeen}</TableCell>
+                      <TableCell>{client.received}</TableCell>
+                      <TableCell>{client.sent}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="icon">
