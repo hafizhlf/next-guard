@@ -217,8 +217,8 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
           throw new Error("Failed to fetch peers")
         }
         const data = await response.json()
+        setClients([])
         if (data && data.length > 0) {
-          setClients([])
           setClients(prevClients => [
             ...prevClients,
             ...data.map((item: Client) => ({
@@ -264,6 +264,8 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
 
     if (currentServers) {
       fetchPeers()
+      const intervalId = setInterval(fetchPeers, 5000)
+      return () => clearInterval(intervalId)
     }
   }, [currentServers, toast])
 
