@@ -296,6 +296,21 @@ export async function reloadWireguardServer(filename: string): Promise<void> {
 
 export async function peerTransferRate(peer: string): Promise<{ sent: number, received: number }> {
   try {
+    const interfaceStatus = await new Promise<string>((resolve, reject) => {
+      exec('wg show wg0', { shell: 'bash' }, (error, stdout, stderr) => {
+        if (error) {
+          reject(new Error(`Failed to check WireGuard interface: ${stderr || (error as Error).message}`));
+          return;
+        }
+        resolve(stdout);
+      });
+    });
+
+    // If interface is not up, return 0, 0
+    if (!interfaceStatus.includes('interface: wg0')) {
+      return { sent: 0, received: 0 };
+    }
+
     return await new Promise<{ sent: number, received: number }>((resolve, reject) => {
       exec(`wg show wg0 transfer | grep -A 5 "${peer}"`, { shell: 'bash' }, (error, stdout, stderr) => {
         if (error) {
