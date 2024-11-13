@@ -3,3 +3,4 @@ database.sqlite
 *.py[co]
 __pycache__/
 .env
+database/

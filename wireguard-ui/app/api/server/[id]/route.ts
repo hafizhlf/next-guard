@@ -69,7 +69,8 @@ export async function PUT(
           { status: 500 }
         )
       }
-    } else {
+    } 
+    if (status === "Offline") {
       const filename = `${server.name}`
 
       try {

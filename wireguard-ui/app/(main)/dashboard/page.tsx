@@ -44,6 +44,7 @@ export default function WireGuardDashboard() {
   const [servers, setServers] = useState<Server[]>([])
   const [currentServers, setCurrentServers] = useState<Server>()
   const [newClientName, setNewClientName] = useState("")
+  const [selectedServer, setSelectedServer] = useState("")
   const { toast } = useToast()
 
   const addClient = async (e: React.FormEvent) => {
@@ -210,13 +211,13 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
   useEffect(() => {
     const fetchPeers = async () => {
       try {
-        setClients([])
         const response = await fetch(`/api/server/${currentServers?.id}/peer`)
         if (!response.ok) {
           throw new Error("Failed to fetch peers")
         }
         const data = await response.json()
         if (data && data.length > 0) {
+          setClients([])
           setClients(prevClients => [
             ...prevClients,
             ...data.map((item: Client) => ({
@@ -264,6 +265,13 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
     }
   }, [currentServers, toast])
 
+  useEffect(() => {
+    if (servers.length > 0) {
+      setSelectedServer(servers[0].id.toString());
+      getServerData(servers[0].id.toString());
+    }
+  }, [servers, getServerData])
+
   return (
     <div className="container mx-auto p-4">
 
@@ -279,7 +287,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
           </TabsTrigger>
         </TabsList>
         <div className="float-right">
-          <Select onValueChange={getServerData}>
+          <Select onValueChange={getServerData} value={selectedServer}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select a server" />
             </SelectTrigger>
