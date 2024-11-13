@@ -29,8 +29,8 @@ export async function GET(
       order: [['id', 'asc']]
     })
 
-    const convertRate = (bytes: number) => {
-      const kilobits = (bytes * 8) / 1000;
+    const convertRate = (bit: number) => {
+      const kilobits = bit / 1000;
 
       // Determine unit based on size
       if (kilobits < 1000) {
@@ -52,7 +52,7 @@ export async function GET(
     }
 
     const response = await Promise.all(peers.map(async peer => {
-      const { received, sent } = await peerTransferRate(peer.public_key)
+      const { sent, received } = await peerTransferRate(peer.public_key)
 
       const receivedRate = convertRate(received);
       const sentRate = convertRate(sent);
