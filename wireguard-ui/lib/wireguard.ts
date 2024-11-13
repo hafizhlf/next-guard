@@ -17,12 +17,20 @@ export async function prepareWireguardConfig(serverId: number): Promise<string> 
   const WG_POST_UP = `iptables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
 iptables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 iptables -A FORWARD -i wg0 -j ACCEPT;
-iptables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+iptables -A FORWARD -o wg0 -j ACCEPT;
+ip6tables -t nat -A POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+ip6tables -A INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+ip6tables -A FORWARD -i wg0 -j ACCEPT;
+ip6tables -A FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
   const WG_POST_DOWN = `iptables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
 iptables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
 iptables -D FORWARD -i wg0 -j ACCEPT;
-iptables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
+iptables -D FORWARD -o wg0 -j ACCEPT;
+ip6tables -t nat -D POSTROUTING -s ${server.ip_address} -o eth0 -j MASQUERADE;
+ip6tables -D INPUT -p udp -m udp --dport ${server.port} -j ACCEPT;
+ip6tables -D FORWARD -i wg0 -j ACCEPT;
+ip6tables -D FORWARD -o wg0 -j ACCEPT;`.split('\n').join(' ');
 
   const WG_PRE_DOWN = '';
 
@@ -286,25 +294,26 @@ export async function reloadWireguardServer(filename: string): Promise<void> {
   }
 }
 
-export async function peerTransferRate(peer: string): Promise<{ sent: number, received: number }> {
+export async function peerTransferRate(serverId: string, peer: string): Promise<{ sent: number, received: number }> {
   try {
-    const interfaceStatus = await new Promise<string>((resolve, reject) => {
-      exec('wg show wg0', { shell: 'bash' }, (error, stdout, stderr) => {
-        if (error) {
-          reject(new Error(`Failed to check WireGuard interface: ${stderr || (error as Error).message}`));
-          return;
-        }
-        resolve(stdout);
-      });
-    });
+    const server = await Server.findByPk(serverId)
 
-    // If interface is not up, return 0, 0
-    if (!interfaceStatus.includes('interface: wg0')) {
+    try {
+      await new Promise<string>((resolve, reject) => {
+        exec(`wg show ${server?.name}`, { shell: 'bash' }, (error, stdout, stderr) => {
+          if (error) {
+            reject(new Error(`Failed to check WireGuard interface: ${stderr || (error as Error).message}`));
+            return;
+          }
+          resolve(stdout);
+        });
+      });
+    } catch {
       return { sent: 0, received: 0 };
     }
 
     return await new Promise<{ sent: number, received: number }>((resolve, reject) => {
-      exec(`wg show wg0 transfer | grep -A 5 "${peer}"`, { shell: 'bash' }, (error, stdout, stderr) => {
+      exec(`wg show ${server?.name} transfer | grep -A 5 "${peer}"`, { shell: 'bash' }, (error, stdout, stderr) => {
         if (error) {
           reject(new Error(`Failed to get Peer Rate: ${stderr || (error as Error).message}`));
           return;

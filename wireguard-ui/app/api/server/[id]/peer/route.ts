@@ -52,7 +52,7 @@ export async function GET(
     }
 
     const response = await Promise.all(peers.map(async peer => {
-      const { sent, received } = await peerTransferRate(peer.public_key)
+      const { sent, received } = await peerTransferRate(serverId, peer.public_key)
 
       const receivedRate = convertRate(received);
       const sentRate = convertRate(sent);
