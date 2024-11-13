@@ -30,24 +30,25 @@ export async function GET(
     })
 
     const convertRate = (bit: number) => {
-      const kilobits = bit / 1000;
+      const bytes = bit / 8 // Convert bits to bytes
+      const kilobytes = bytes / 1000 // Convert bytes to kilobytes
 
       // Determine unit based on size
-      if (kilobits < 1000) {
-        // Less than 1 Kbps, return as Kbps
-        return { value: kilobits, unit: 'Kbps' };
-      } else if (kilobits < 1000000) {
-        // Less than 1 Mbps, return as Mbps
-        const mbps = kilobits / 1000;
-        return { value: mbps, unit: 'Mbps' };
-      } else if (kilobits < 1000000000) {
-        // Less than 1 Gbps, return as Gbps
-        const gbps = kilobits / 1000000;
-        return { value: gbps, unit: 'Gbps' };
+      if (kilobytes < 1000) {
+        // Less than 1 KB, return as KB
+        return { value: kilobytes, unit: 'KB' }
+      } else if (kilobytes < 1000000) {
+        // Less than 1 MB, return as MB
+        const mb = kilobytes / 1000
+        return { value: mb, unit: 'MB' }
+      } else if (kilobytes < 1000000000) {
+        // Less than 1 GB, return as GB
+        const gb = kilobytes / 1000000
+        return { value: gb, unit: 'GB' }
       } else {
-        // Greater than or equal to 1 Gbps, return as Gbps
-        const gbps = kilobits / 1000000;
-        return { value: gbps, unit: 'Gbps' };
+        // Greater than or equal to 1 GB, return as GB
+        const gb = kilobytes / 1000000
+        return { value: gb, unit: 'GB' }
       }
     }
 
