@@ -329,7 +329,7 @@ export default function WireGuardDashboard() {
                   <TableCell>{server.ip_address}</TableCell>
                   <TableCell>{server.port}</TableCell>
                   <TableCell>
-                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                    <div className="flex sm:flex-row space-x-2">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="icon" onClick={() => editServer(server.id)}>

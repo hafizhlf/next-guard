@@ -277,21 +277,21 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
 
   return (
     <div className="container mx-auto p-4">
-
       <Tabs defaultValue="clients">
-        <TabsList className="mb-4">
-          <TabsTrigger value="clients">
+        <TabsList className="mb-4 w-full sm:w-[250px]">
+          <TabsTrigger value="clients" className="w-full sm:w-auto">
             <Users className="w-4 h-4 mr-2" />
             Clients
           </TabsTrigger>
-          <TabsTrigger value="settings">
+          <TabsTrigger value="settings" className="w-full sm:w-auto">
             <Settings className="w-4 h-4 mr-2" />
             Server Settings
           </TabsTrigger>
         </TabsList>
-        <div className="float-right">
+
+        <div className="sm:text-right mb-4 float-none sm:float-right">
           <Select value={currentServers?.id} onValueChange={getServerData}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[250px]">
               <SelectValue placeholder="Select a server" />
             </SelectTrigger>
             <SelectContent>
@@ -329,11 +329,10 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                       <TableCell>{client.received}</TableCell>
                       <TableCell>{client.sent}</TableCell>
                       <TableCell>
-                        <div className="flex space-x-2">
+                        <div className="flex gap-2">
                           <Button variant="outline" size="icon">
                             <RefreshCw className="w-4 h-4" />
                           </Button>
-                          {/* Dialog Trigger Button */}
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="icon">
@@ -358,8 +357,8 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                 </TableBody>
               </Table>
 
-              <form onSubmit={addClient} className="mt-4 flex items-end gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
+              <form onSubmit={addClient} className="mt-4 flex flex-wrap items-end gap-4">
+                <div className="w-full sm:max-w-sm">
                   <Label htmlFor="newClient">New Client Name</Label>
                   <Input
                     type="text"
@@ -369,7 +368,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                     placeholder="Enter client name"
                   />
                 </div>
-                <Button type="submit">
+                <Button type="submit" className="w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Client
                 </Button>
@@ -385,36 +384,40 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
               <CardDescription>Configure your WireGuard server settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
+              <div className="flex flex-wrap justify-between items-center gap-2">
+                <div className="w-full sm:w-[48%]">
                   <Label htmlFor="serverIP">Server IP</Label>
                   <p className="text-sm text-muted-foreground">The IP address of the WireGuard server used for client connections.</p>
                 </div>
-                <Input id="serverIP" className="w-[200px]" value={currentServers?.public_ip || "-"} readOnly disabled />
+                <Input id="serverIP" className="w-full sm:w-[200px]" value={currentServers?.public_ip || "-"} readOnly disabled />
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
+
+              <div className="flex flex-wrap justify-between items-center gap-2">
+                <div className="w-full sm:w-[48%]">
                   <Label htmlFor="serverPort">Server Port</Label>
                   <p className="text-sm text-muted-foreground">The port your WireGuard server listens on</p>
                 </div>
-                <Input id="serverPort" className="w-[200px]" value={currentServers?.port || "-"} readOnly disabled />
+                <Input id="serverPort" className="w-full sm:w-[200px]" value={currentServers?.port || "-"} readOnly disabled />
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
+
+              <div className="flex flex-wrap justify-between items-center gap-2">
+                <div className="w-full sm:w-[48%]">
                   <Label>Auto-restart on failure</Label>
                   <p className="text-sm text-muted-foreground">Automatically restart the server if it crashes</p>
                 </div>
                 <Switch defaultChecked />
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
+
+              <div className="flex flex-wrap justify-between items-center gap-2">
+                <div className="w-full sm:w-[48%]">
                   <Label htmlFor="dnsSetting">DNS Settings</Label>
                   <p className="text-sm text-muted-foreground">DNS servers for client devices</p>
                 </div>
-                <Input id="dnsSetting" className="w-[200px]" defaultValue="1.1.1.1, 1.0.0.1" />
+                <Input id="dnsSetting" className="w-full sm:w-[200px]" defaultValue="1.1.1.1, 1.0.0.1" />
               </div>
+
               <div className="pt-4">
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Apply Changes
                 </Button>
