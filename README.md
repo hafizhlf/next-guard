@@ -24,7 +24,6 @@
 
 ## Installation
 
-
 ### Environment Variables
 
 -   **NEXTAUTH_SECRET**: A secret key for securing authentication. It’s essential for handling sessions and authentication safely in NextAuth.js.

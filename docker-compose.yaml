@@ -6,6 +6,7 @@ services:
     environment:
     - NEXTAUTH_SECRET= # openssl rand -base64 32
     - NEXTAUTH_URL= # public url
+    - NEXT_PUBLIC_ENABLE_REGISTER_PAGE= # boolean
     build: .
     container_name: next-guard
     volumes:
