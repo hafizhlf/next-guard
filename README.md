@@ -27,17 +27,18 @@
 
 ### Environment Variables
 
-- **NEXTAUTH_SECRET**: A secret key for securing authentication. It’s essential for handling sessions and authentication safely in NextAuth.js.
+-   **NEXTAUTH_SECRET**: A secret key for securing authentication. It’s essential for handling sessions and authentication safely in NextAuth.js.
+
     **How to generate**:  
     You can generate a secure `NEXTAUTH_SECRET` using following methods:
-    - **Using OpenSSL (Linux/macOS)**:
+    -   **Using OpenSSL (Linux/macOS)**:
         Run this command in your terminal:
         ```
         openssl rand -base64 32
         ```
-- **NEXTAUTH_URL**: The base URL where the application is running. For local development, this is typically `http://localhost:3000`. When deploying, change this to the actual URL of the application.
-- **NODE_ENV**: Defines the environment the application is running in. Set this to `development` for local development and `production` when deploying.
-- **NEXT_PUBLIC_ENABLE_REGISTER_PAGE**: A boolean flag to enable or disable the user registration page. Set this to `true` if you want the registration page to be available, or `false` to disable it.
+-   **NEXTAUTH_URL**: The base URL where the application is running. For local development, this is typically `http://localhost:3000`. When deploying, change this to the actual URL of the application.
+-   **NODE_ENV**: Defines the environment the application is running in. Set this to `development` for local development and `production` when deploying.
+-   **NEXT_PUBLIC_ENABLE_REGISTER_PAGE**: A boolean flag to enable or disable the user registration page. Set this to `true` if you want the registration page to be available, or `false` to disable it.
 
 ### Option 1: Manual Installation
 
