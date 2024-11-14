@@ -64,13 +64,13 @@ export default function LoginForm() {
   }, [status, router, callback])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader>
+    <div className="flex items-center justify-center min-h-screen px-4 bg-background sm:px-0">
+      <Card className="w-full max-w-md sm:max-w-sm md:max-w-md">
+        <CardHeader className="px-4">
           <CardTitle className="text-2xl font-bold text-center">Login to Next-Guard</CardTitle>
           <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="px-4">
           <CardContent className="space-y-4">
             {errorMsg && (
               <Alert variant="destructive">
