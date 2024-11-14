@@ -1,4 +1,4 @@
-FROM docker.io/library/node:18-slim AS build_node_modules
+FROM docker.io/library/node:lts-alpine AS build_node_modules
 
 # Update npm to latest
 RUN npm install -g npm@latest
@@ -6,19 +6,17 @@ RUN npm install -g npm@latest
 # Copy Web UI
 COPY wireguard-ui /app
 WORKDIR /app
-RUN npm ci
+RUN npm install
 RUN npm run build
+RUN npm prune --omit=dev
 
-FROM docker.io/library/node:18-slim
-HEALTHCHECK CMD /usr/bin/timeout 5s /bin/sh -c "/usr/bin/wg show | /bin/grep -q interface || exit 1" --interval=1m --timeout=5s --retries=3
+FROM docker.io/library/node:lts-alpine
 COPY --from=build_node_modules /app /app
 
 # Install Linux packages
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     iptables \
-    iproute2 \
-    wireguard-tools && \
-    apt-get clean
+    wireguard-tools
 
 # Set Environment
 ENV NODE_ENV=production
