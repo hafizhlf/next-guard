@@ -24,10 +24,28 @@
 
 ## Installation
 
+
+### Environment Variables
+
+- **NEXTAUTH_SECRET**: A secret key for securing authentication. It’s essential for handling sessions and authentication safely in NextAuth.js.
+    **How to generate**:  
+    You can generate a secure `NEXTAUTH_SECRET` using following methods:
+    - **Using OpenSSL (Linux/macOS)**:
+        Run this command in your terminal:
+        ```
+        openssl rand -base64 32
+        ```
+- **NEXTAUTH_URL**: The base URL where the application is running. For local development, this is typically `http://localhost:3000`. When deploying, change this to the actual URL of the application.
+- **NODE_ENV**: Defines the environment the application is running in. Set this to `development` for local development and `production` when deploying.
+- **NEXT_PUBLIC_ENABLE_REGISTER_PAGE**: A boolean flag to enable or disable the user registration page. Set this to `true` if you want the registration page to be available, or `false` to disable it.
+
+### Option 1: Manual Installation
+
 1. Clone the repository:
 ```
 git clone https://github.com/hafizhlf/next-guard.git
 cd next-guard
+cd app
 ```
 2. Install dependencies:
 ```
@@ -39,9 +57,27 @@ npm run dev
 ```
 4. The application will be available at `http://localhost:3000`.
 
+### Option 2: Docker Installation (Recommended for easier deployment)
+
+1.  Clone the repository:
+```
+git clone https://github.com/hafizhlf/next-guard.git
+cd next-guard
+```
+2. Build and start the Docker container:
+```
+docker-compose up --build
+```
+3. The application will be available at `http://localhost:3000`.
+
+### Docker Configuration
+
+-   Ensure that your WireGuard configuration and server paths are correctly set within the container's environment.
+-   You can use Docker volumes to persist WireGuard configuration files across container restarts.
+
 ## Usage
 
-1.  Run the Next.js server (see above).
+1.  Run the server using either method (Next.js server or Docker).
 2.  Access the application at `http://localhost:3000` to manage your WireGuard server.
 3.  Use the UI to add peers, manage connections, and control the server (start/stop/restart).
 
@@ -65,10 +101,10 @@ Contributions are welcome! Please follow these steps:
 
 ## Roadmap
 
- - [ ] Add user authentication and role-based access control
- - [ ] Improve error handling and logging
- - [ ] Add real-time peer status monitoring
- - [ ] Create Docker setup for easier deployment
+ - [x] Add user authentication and role-based access control
+ - [x] Improve error handling and logging
+ - [x] Add real-time peer status monitoring
+ - [x] Create Docker setup for easier deployment
 
 ## Acknowledgments
 
