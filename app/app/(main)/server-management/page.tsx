@@ -259,7 +259,7 @@ export default function WireGuardDashboard() {
           <div className="mb-4">
             <Dialog>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <ServerIcon className="mr-2 h-4 w-4" />
                   Add New Server
                 </Button>
@@ -270,30 +270,30 @@ export default function WireGuardDashboard() {
                   <DialogDescription>Enter the details for the new server.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="server-name" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                    <Label htmlFor="server-name">
                       Name
                     </Label>
                     <Input
                       id="server-name"
                       value={newServer.name}
                       onChange={(e) => setNewServer({ ...newServer, name: e.target.value })}
-                      className="col-span-3"
+                      className="sm:col-span-3 w-full"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="server-ip" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                    <Label htmlFor="server-ip">
                       IP Address
                     </Label>
                     <Input
                       id="server-ip"
                       value={newServer.ip_address}
                       onChange={(e) => setNewServer({ ...newServer, ip_address: e.target.value })}
-                      className="col-span-3"
+                      className="sm:col-span-3 w-full"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="server-port" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                    <Label htmlFor="server-port">
                       Port
                     </Label>
                     <Input
@@ -301,13 +301,13 @@ export default function WireGuardDashboard() {
                       type="number"
                       value={newServer.port}
                       onChange={(e) => setNewServer({ ...newServer, port: parseInt(e.target.value) })}
-                      className="col-span-3"
+                      className="sm:col-span-3 w-full"
                     />
                   </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button onClick={addServer}>Add Server</Button>
+                    <Button className="w-full sm:w-auto" onClick={addServer}>Add Server</Button>
                   </DialogClose>
                 </DialogFooter>
               </DialogContent>
@@ -329,7 +329,7 @@ export default function WireGuardDashboard() {
                   <TableCell>{server.ip_address}</TableCell>
                   <TableCell>{server.port}</TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="icon" onClick={() => editServer(server.id)}>
@@ -342,30 +342,30 @@ export default function WireGuardDashboard() {
                             <DialogDescription>Update server information.</DialogDescription>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-name" className="text-right">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                              <Label htmlFor="edit-server-name">
                                 Name
                               </Label>
                               <Input
                                 id="edit-server-name"
                                 value={editingServer?.name || ""}
                                 onChange={(e) => setEditingServer(editingServer ? { ...editingServer, name: e.target.value } : null)}
-                                className="col-span-3"
+                                className="sm:col-span-3 w-full"
                               />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-ip" className="text-right">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                              <Label htmlFor="edit-server-ip">
                                 IP Address
                               </Label>
                               <Input
                                 id="edit-server-ip"
                                 value={editingServer?.ip_address || ""}
                                 onChange={(e) => setEditingServer(editingServer ? { ...editingServer, ip_address: e.target.value } : null)}
-                                className="col-span-3"
+                                className="sm:col-span-3 w-full"
                               />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-port" className="text-right">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                              <Label htmlFor="edit-server-port">
                                 Port
                               </Label>
                               <Input
@@ -373,13 +373,13 @@ export default function WireGuardDashboard() {
                                 type="number"
                                 value={editingServer?.port || ""}
                                 onChange={(e) => setEditingServer(editingServer ? { ...editingServer, port: parseInt(e.target.value) } : null)}
-                                className="col-span-3"
+                                className="sm:col-span-3 w-full"
                               />
                             </div>
                           </div>
                           <DialogFooter>
                             <DialogClose asChild>
-                              <Button onClick={updateServer}>Update Server</Button>
+                              <Button className="w-full sm:w-auto" onClick={updateServer}>Update Server</Button>
                             </DialogClose>
                           </DialogFooter>
                         </DialogContent>
@@ -391,7 +391,7 @@ export default function WireGuardDashboard() {
                         variant="outline"
                         size="icon"
                         onClick={() => toggleServerStatus(server.id)}
-                        className={server.status === "Online" ? "bg-red-100 hover:bg-red-200" : "bg-green-100 hover:bg-green-200"}
+                        className={`${server.status === "Online" ? "bg-red-100 hover:bg-red-200" : "bg-green-100 hover:bg-green-200"}`}
                       >
                         {server.status === "Online" ? (
                           <Square className="h-4 w-4" />
