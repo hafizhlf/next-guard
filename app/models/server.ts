@@ -5,6 +5,7 @@ class Server extends Model {
   declare id: number;
   declare name: string;
   declare private_key: string;
+  declare public_key: string;
   declare ip_address: string;
   declare public_ip: string;
   declare status: string;

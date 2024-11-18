@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useState, useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,7 +18,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { AlertCircle, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
+import { AlertCircle, Download, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
 import { QRCodeSVG } from 'qrcode.react'
 
 interface Client {
@@ -180,6 +181,27 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
     }
   }, [servers])
 
+  const handleDownload = async (peerId: number) => {
+    try {
+      console.log(peerId, "Hello World")
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
+    }
+  };
+
+
   useEffect(() => {
     const fetchServers = async () => {
       try {
@@ -330,9 +352,11 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                       <TableCell>{client.sent}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="icon">
-                            <RefreshCw className="w-4 h-4" />
-                          </Button>
+                          <Link href={`/api/peer/${client.id}`} target="_blank">
+                            <Button variant="outline" size="icon">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </Link>
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="icon">
