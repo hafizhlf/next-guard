@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { AlertCircle, Download, Plus, RefreshCw, Settings, Users, Trash2, QrCode } from "lucide-react"
+import { AlertCircle, Download, Plus, Settings, Users, Trash2, QrCode } from "lucide-react"
 import { QRCodeSVG } from 'qrcode.react'
 
 interface Client {
@@ -180,27 +180,6 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
       setCurrentServers(selectedServer)
     }
   }, [servers])
-
-  const handleDownload = async (peerId: number) => {
-    try {
-      console.log(peerId, "Hello World")
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
-    }
-  };
-
 
   useEffect(() => {
     const fetchServers = async () => {
