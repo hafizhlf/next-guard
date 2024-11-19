@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   development: {
     dialect: 'sqlite',
     storage: './database/database.sqlite',
@@ -33,3 +33,7 @@ module.exports = {
     }
   },
 };
+const env = process.env.NODE_ENV || 'development';
+const dbConfig = config[env];
+
+module.exports = dbConfig

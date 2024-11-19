@@ -1,5 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '@/config/database'
+import { sequelize } from '@/config/db-connect'
 
 
 class Server extends Model {

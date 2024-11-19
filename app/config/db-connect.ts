@@ -1,6 +1,5 @@
-import { Sequelize } from 'sequelize'; // Importing Sequelize
+import { Sequelize } from 'sequelize';
 
-// Define your config type for better type checking
 interface DBConfig {
   dialect: 'sqlite';
   storage: string;
@@ -48,11 +47,8 @@ const config: { [key: string]: DBConfig } = {
     }
   },
 };
-
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
-
-// Initialize Sequelize with the selected config
 const sequelize = new Sequelize(dbConfig);
 
-export { sequelize, config };  // Exporting sequelize and config for use in other parts of the app
+export { sequelize };
