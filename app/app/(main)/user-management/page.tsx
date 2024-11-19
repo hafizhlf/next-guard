@@ -279,87 +279,89 @@ export default function UserManagement() {
               </DialogContent>
             </Dialog>
           </div>
-          <Table className="overflow-auto">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead >Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-start space-x-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => editUser(user.id)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="">
-                          <DialogHeader>
-                            <DialogTitle>Edit User</DialogTitle>
-                            <DialogDescription>Update user information.</DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-name" className="text-left sm:text-right">
-                                Name
-                              </Label>
-                              <Input
-                                id="edit-name"
-                                value={editingUser?.name || ""}
-                                onChange={(e) =>
-                                  setEditingUser(editingUser ? { ...editingUser, name: e.target.value } : null)
-                                }
-                                className="col-span-3 w-full"
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-password" className="text-left sm:text-right">
-                                Password
-                              </Label>
-                              <Input
-                                id="edit-password"
-                                type="password"
-                                value={editingUser?.password || ""}
-                                onChange={(e) =>
-                                  setEditingUser(editingUser ? { ...editingUser, password: e.target.value } : null)
-                                }
-                                className="col-span-3 w-full"
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <DialogClose asChild>
-                              <Button className="w-full sm:w-auto" onClick={updateUser}>
-                                Update User
-                              </Button>
-                            </DialogClose>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => deleteUser(user.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="p-4">Name</TableHead>
+                  <TableHead className="p-4">Email</TableHead>
+                  <TableHead className="p-4" >Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="p-4">{user.name}</TableCell>
+                    <TableCell className="p-4">{user.username}</TableCell>
+                    <TableCell className="p-4">
+                      <div className="flex justify-start space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => editUser(user.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="">
+                            <DialogHeader>
+                              <DialogTitle>Edit User</DialogTitle>
+                              <DialogDescription>Update user information.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-name" className="text-left sm:text-right">
+                                  Name
+                                </Label>
+                                <Input
+                                  id="edit-name"
+                                  value={editingUser?.name || ""}
+                                  onChange={(e) =>
+                                    setEditingUser(editingUser ? { ...editingUser, name: e.target.value } : null)
+                                  }
+                                  className="col-span-3 w-full"
+                                />
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-password" className="text-left sm:text-right">
+                                  Password
+                                </Label>
+                                <Input
+                                  id="edit-password"
+                                  type="password"
+                                  value={editingUser?.password || ""}
+                                  onChange={(e) =>
+                                    setEditingUser(editingUser ? { ...editingUser, password: e.target.value } : null)
+                                  }
+                                  className="col-span-3 w-full"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button className="w-full sm:w-auto" onClick={updateUser}>
+                                  Update User
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => deleteUser(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

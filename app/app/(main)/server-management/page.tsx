@@ -313,98 +313,100 @@ export default function WireGuardDashboard() {
               </DialogContent>
             </Dialog>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>Port</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {servers.map((server) => (
-                <TableRow key={server.id}>
-                  <TableCell>{server.name}</TableCell>
-                  <TableCell>{server.ip_address}</TableCell>
-                  <TableCell>{server.port}</TableCell>
-                  <TableCell>
-                    <div className="flex sm:flex-row space-x-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => editServer(server.id)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit Server</DialogTitle>
-                            <DialogDescription>Update server information.</DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-name">
-                                Name
-                              </Label>
-                              <Input
-                                id="edit-server-name"
-                                value={editingServer?.name || ""}
-                                onChange={(e) => setEditingServer(editingServer ? { ...editingServer, name: e.target.value } : null)}
-                                className="sm:col-span-3 w-full"
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-ip">
-                                IP Address
-                              </Label>
-                              <Input
-                                id="edit-server-ip"
-                                value={editingServer?.ip_address || ""}
-                                onChange={(e) => setEditingServer(editingServer ? { ...editingServer, ip_address: e.target.value } : null)}
-                                className="sm:col-span-3 w-full"
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                              <Label htmlFor="edit-server-port">
-                                Port
-                              </Label>
-                              <Input
-                                id="edit-server-port"
-                                type="number"
-                                value={editingServer?.port || ""}
-                                onChange={(e) => setEditingServer(editingServer ? { ...editingServer, port: parseInt(e.target.value) } : null)}
-                                className="sm:col-span-3 w-full"
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <DialogClose asChild>
-                              <Button className="w-full sm:w-auto" onClick={updateServer}>Update Server</Button>
-                            </DialogClose>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button variant="outline" size="icon" onClick={() => deleteServer(server.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => toggleServerStatus(server.id)}
-                        className={`${server.status === "Online" ? "bg-red-100 hover:bg-red-200" : "bg-green-100 hover:bg-green-200"}`}
-                      >
-                        {server.status === "Online" ? (
-                          <Square className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="p-4">Name</TableHead>
+                  <TableHead className="p-4">IP Address</TableHead>
+                  <TableHead className="p-4">Port</TableHead>
+                  <TableHead className="p-4">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {servers.map((server) => (
+                  <TableRow key={server.id}>
+                    <TableCell className="p-4">{server.name}</TableCell>
+                    <TableCell className="p-4">{server.ip_address}</TableCell>
+                    <TableCell className="p-4">{server.port}</TableCell>
+                    <TableCell className="p-4">
+                      <div className="flex sm:flex-row space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={() => editServer(server.id)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Server</DialogTitle>
+                              <DialogDescription>Update server information.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-server-name">
+                                  Name
+                                </Label>
+                                <Input
+                                  id="edit-server-name"
+                                  value={editingServer?.name || ""}
+                                  onChange={(e) => setEditingServer(editingServer ? { ...editingServer, name: e.target.value } : null)}
+                                  className="sm:col-span-3 w-full"
+                                />
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-server-ip">
+                                  IP Address
+                                </Label>
+                                <Input
+                                  id="edit-server-ip"
+                                  value={editingServer?.ip_address || ""}
+                                  onChange={(e) => setEditingServer(editingServer ? { ...editingServer, ip_address: e.target.value } : null)}
+                                  className="sm:col-span-3 w-full"
+                                />
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-server-port">
+                                  Port
+                                </Label>
+                                <Input
+                                  id="edit-server-port"
+                                  type="number"
+                                  value={editingServer?.port || ""}
+                                  onChange={(e) => setEditingServer(editingServer ? { ...editingServer, port: parseInt(e.target.value) } : null)}
+                                  className="sm:col-span-3 w-full"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button className="w-full sm:w-auto" onClick={updateServer}>Update Server</Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button variant="outline" size="icon" onClick={() => deleteServer(server.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => toggleServerStatus(server.id)}
+                          className={`${server.status === "Online" ? "bg-red-100 hover:bg-red-200" : "bg-green-100 hover:bg-green-200"}`}
+                        >
+                          {server.status === "Online" ? (
+                            <Square className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

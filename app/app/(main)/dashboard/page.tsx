@@ -344,53 +344,55 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                   </DialogContent>
                 </Dialog>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>IP Address</TableHead>
-                    <TableHead>Received</TableHead>
-                    <TableHead>Sent</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clients.map((client) => (
-                    <TableRow key={client.id}>
-                      <TableCell>{client.name}</TableCell>
-                      <TableCell>{client.ip_address}</TableCell>
-                      <TableCell>{client.received}</TableCell>
-                      <TableCell>{client.sent}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Link href={`/api/peer/${client.id}`} target="_blank">
-                            <Button variant="outline" size="icon">
-                              <Download className="w-4 h-4" />
-                            </Button>
-                          </Link>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="icon">
-                                <QrCode className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogTitle>QR Code</DialogTitle>
-                              <DialogDescription>Scan the QR code for client details.</DialogDescription>
-                              <div className="flex justify-center">
-                                <QRCodeSVG value={client.config} size={256} />
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="outline" size="icon" onClick={() => deletePeer(client.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="p-4">Name</TableHead>
+                      <TableHead className="p-4">IP Address</TableHead>
+                      <TableHead className="p-4">Received</TableHead>
+                      <TableHead className="p-4">Sent</TableHead>
+                      <TableHead className="p-4">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {clients.map((client) => (
+                      <TableRow key={client.id}>
+                        <TableCell className="p-4">{client.name}</TableCell>
+                        <TableCell className="p-4">{client.ip_address}</TableCell>
+                        <TableCell className="p-4">{client.received}</TableCell>
+                        <TableCell className="p-4">{client.sent}</TableCell>
+                        <TableCell className="p-4">
+                          <div className="flex gap-2">
+                            <Link href={`/api/peer/${client.id}`} target="_blank">
+                              <Button variant="outline" size="icon">
+                                <Download className="w-4 h-4" />
+                              </Button>
+                            </Link>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                  <QrCode className="w-4 h-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogTitle>QR Code</DialogTitle>
+                                <DialogDescription>Scan the QR code for client details.</DialogDescription>
+                                <div className="flex justify-center">
+                                  <QRCodeSVG value={client.config} size={256} />
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            <Button variant="outline" size="icon" onClick={() => deletePeer(client.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
