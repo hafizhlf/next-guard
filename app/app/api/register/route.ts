@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
+import createUser from 'lib/auth'
 import User from 'models/user'
 
 export async function POST(req: Request) {
@@ -26,18 +26,8 @@ export async function POST(req: Request) {
       )
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10)
-
     // Create user
-    const user = await User.create({
-      username,
-      password: hashedPassword,
-      name,
-    })
-
-    // Return user data (excluding password)
-    const { password: _, ...userWithoutPassword } = user.get()
+    const userWithoutPassword = createUser(username, password, name)
 
     return NextResponse.json(userWithoutPassword, { status: 201 })
   } catch (error) {

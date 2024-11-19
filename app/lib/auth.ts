@@ -2,7 +2,7 @@
 import bcrypt from 'bcryptjs'
 import User from '@/models/user'
 
-export async function createUser(
+export default async function createUser(
   username: string,
   password: string,
   name: string
