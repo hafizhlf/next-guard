@@ -17,7 +17,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { AlertCircle, Download, Plus, Settings, Users, Trash2, QrCode } from "lucide-react"
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -48,8 +48,7 @@ export default function WireGuardDashboard() {
   const [newClientName, setNewClientName] = useState("")
   const { toast } = useToast()
 
-  const addClient = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const addClient = async () => {
     try {
       const res = await fetch("/api/peer", {
         method: "POST",
@@ -77,8 +76,8 @@ export default function WireGuardDashboard() {
           ip_address: data.ip_address,
           private_key: data.private_key,
           preshared_key: data.preshared_key,
-          received: data.received,
-          sent: data.sent,
+          received: "0.00 KB",
+          sent: "0.00 KB",
           config:
             `[Interface]
 PrivateKey = ${data.private_key}
@@ -312,6 +311,40 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
               <CardDescription>Manage and monitor connected WireGuard clients</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full sm:w-auto">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add New Client
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Client</DialogTitle>
+                      <DialogDescription>Enter the details of the new client below.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                        <Label htmlFor="client-name">
+                          Name
+                        </Label>
+                        <Input
+                          id="client-name"
+                          value={newClientName}
+                          onChange={(e) => setNewClientName(e.target.value)}
+                          className="sm:col-span-3 w-full"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button className="w-full sm:w-auto" onClick={addClient}>Add Client</Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -359,23 +392,6 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                   ))}
                 </TableBody>
               </Table>
-
-              <form onSubmit={addClient} className="mt-4 flex flex-wrap items-end gap-4">
-                <div className="w-full sm:max-w-sm">
-                  <Label htmlFor="newClient">New Client Name</Label>
-                  <Input
-                    type="text"
-                    id="newClient"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="Enter client name"
-                  />
-                </div>
-                <Button type="submit" className="w-full sm:w-auto">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Client
-                </Button>
-              </form>
             </CardContent>
           </Card>
         </TabsContent>
@@ -401,14 +417,6 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                   <p className="text-sm text-muted-foreground">The port your WireGuard server listens on</p>
                 </div>
                 <Input id="serverPort" className="w-full sm:w-[200px]" value={currentServers?.port || "-"} readOnly disabled />
-              </div>
-
-              <div className="flex flex-wrap justify-between items-center gap-2">
-                <div className="w-full sm:w-[48%]">
-                  <Label>Auto-restart on failure</Label>
-                  <p className="text-sm text-muted-foreground">Automatically restart the server if it crashes</p>
-                </div>
-                <Switch defaultChecked />
               </div>
 
               <div className="flex flex-wrap justify-between items-center gap-2">
