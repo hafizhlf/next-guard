@@ -90,7 +90,7 @@ export default function WireGuardDashboard() {
             `[Interface]
 PrivateKey = ${data.private_key}
 Address = ${data.ip_address}/24
-DNS = 1.1.1.1, 8.8.8.8
+DNS = ${currentServers?.dns || '1.1.1.1'}
 MTU = 1280
 
 [Peer]
