@@ -1,7 +1,4 @@
-// config/database.js
-const Sequelize = require('sequelize');
-
-const config = {
+module.exports = {
   development: {
     dialect: 'sqlite',
     storage: './database/database.sqlite',
@@ -36,12 +33,3 @@ const config = {
     }
   },
 };
-
-const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
-
-const sequelize = new Sequelize({
-  ...dbConfig
-});
-
-module.exports = sequelize;

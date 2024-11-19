@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx wireguard.ts && next dev --turbo",
+    "dev": "sequelize-cli db:migrate && tsx wireguard.ts && next dev --turbo",
     "build": "next build",
     "start": "tsx wireguard.ts && next start",
     "lint": "next lint",
@@ -39,6 +39,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
@@ -52,7 +53,6 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.49",
-    "sequelize-cli": "^6.6.2",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3"
   }
