@@ -285,7 +285,7 @@ export default function UserManagement() {
                 <TableRow>
                   <TableHead className="p-4">Name</TableHead>
                   <TableHead className="p-4">Email</TableHead>
-                  <TableHead className="p-4" >Actions</TableHead>
+                  <TableHead className="p-4"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -294,7 +294,7 @@ export default function UserManagement() {
                     <TableCell className="p-4">{user.name}</TableCell>
                     <TableCell className="p-4">{user.username}</TableCell>
                     <TableCell className="p-4">
-                      <div className="flex justify-start space-x-2">
+                      <div className="flex justify-center space-x-2">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button

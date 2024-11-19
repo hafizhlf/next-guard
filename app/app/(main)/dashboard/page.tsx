@@ -352,7 +352,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                       <TableHead className="p-4">IP Address</TableHead>
                       <TableHead className="p-4">Received</TableHead>
                       <TableHead className="p-4">Sent</TableHead>
-                      <TableHead className="p-4">Actions</TableHead>
+                      <TableHead className="p-4"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -363,7 +363,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                         <TableCell className="p-4">{client.received}</TableCell>
                         <TableCell className="p-4">{client.sent}</TableCell>
                         <TableCell className="p-4">
-                          <div className="flex gap-2">
+                          <div className="flex justify-center gap-2 text-end">
                             <Link href={`/api/peer/${client.id}`} target="_blank">
                               <Button variant="outline" size="icon">
                                 <Download className="w-4 h-4" />

@@ -320,7 +320,7 @@ export default function WireGuardDashboard() {
                   <TableHead className="p-4">Name</TableHead>
                   <TableHead className="p-4">IP Address</TableHead>
                   <TableHead className="p-4">Port</TableHead>
-                  <TableHead className="p-4">Actions</TableHead>
+                  <TableHead className="p-4"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -330,7 +330,7 @@ export default function WireGuardDashboard() {
                     <TableCell className="p-4">{server.ip_address}</TableCell>
                     <TableCell className="p-4">{server.port}</TableCell>
                     <TableCell className="p-4">
-                      <div className="flex sm:flex-row space-x-2">
+                      <div className="flex sm:flex-row space-x-2 justify-center">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="icon" onClick={() => editServer(server.id)}>
