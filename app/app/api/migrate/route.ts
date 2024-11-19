@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import { DatabaseError } from "sequelize"
 import bcrypt from 'bcryptjs'
 import User from 'models/user'
-import Server from 'models/server'
-import Peer from 'models/peer'
 
 export const dynamic = 'force-dynamic'
 
