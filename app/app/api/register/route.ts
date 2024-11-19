@@ -4,6 +4,13 @@ import User from 'models/user'
 
 export async function POST(req: Request) {
   try {
+    if (process.env.NEXT_PUBLIC_ENABLE_REGISTER_PAGE === 'false') {
+      return NextResponse.json(
+        { error: 'Registration is disabled' },
+        { status: 403 }
+      )
+    }
+
     const { username, password, name } = await req.json()
 
     // Validate input
