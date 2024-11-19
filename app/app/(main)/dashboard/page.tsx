@@ -80,7 +80,7 @@ export default function WireGuardDashboard() {
           config:
             `[Interface]
 PrivateKey = ${data.private_key}
-Address = ${data.ip_address}
+Address = ${data.ip_address}/24
 DNS = 1.1.1.1, 8.8.8.8
 MTU = 1280
 
@@ -231,7 +231,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
               config:
                 `[Interface]
 PrivateKey = ${item.private_key}
-Address = ${item.ip_address}
+Address = ${item.ip_address}/24
 DNS = 1.1.1.1, 8.8.8.8
 MTU = 1280
 
