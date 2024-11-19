@@ -11,6 +11,7 @@ class Server extends Model {
   declare public_ip: string;
   declare status: string;
   declare port: number;
+  declare dns: string | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -48,6 +49,10 @@ Server.init({
     type: DataTypes.INTEGER,
     unique: true,
     allowNull: false,
+  },
+  dns: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   status: {
     type: DataTypes.ENUM('Online', 'Offline', 'Maintenance'),

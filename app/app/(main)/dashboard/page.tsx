@@ -38,12 +38,21 @@ interface Server {
   port: number
   public_key: number
   public_ip: string
+  dns: string
 }
 
 export default function WireGuardDashboard() {
   const [clients, setClients] = useState<Client[]>([])
   const [servers, setServers] = useState<Server[]>([])
-  const [currentServers, setCurrentServers] = useState<Server>()
+  const [currentServers, setCurrentServers] = useState<Server>({
+    id: "",
+    name: "",
+    ip_address: "",
+    port: 0,
+    public_key: 0,
+    public_ip: "",
+    dns: "",
+  })
   const [newClientName, setNewClientName] = useState("")
   const { toast } = useToast()
 
@@ -179,6 +188,54 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
     }
   }, [servers])
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+
+    setCurrentServers((prevSettings) => ({
+      ...prevSettings,
+      [id]: value
+    }))
+  }
+
+  const handleSubmit = async () => {
+    const updateData: { public_ip?: string, port?: number, dns?: string } = {}
+
+    if (currentServers?.public_ip) updateData.public_ip = currentServers.public_ip
+    if (currentServers?.port) updateData.port = currentServers.port
+    if (currentServers?.dns) updateData.dns = currentServers.dns
+
+    try {
+      const res = await fetch(`/api/server/${currentServers?.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      const data = await res.json()
+
+      toast({
+        title: "Server configuration updated",
+        description: data.message,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast({
+          title: "Something wrong",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Something wrong",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchServers = async () => {
       try {
@@ -211,38 +268,40 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
   useEffect(() => {
     const fetchPeers = async () => {
       try {
-        const response = await fetch(`/api/server/${currentServers?.id}/peer`)
-        if (!response.ok) {
-          throw new Error("Failed to fetch peers")
-        }
-        const data = await response.json()
-        setClients([])
-        if (data && data.length > 0) {
-          setClients(prevClients => [
-            ...prevClients,
-            ...data.map((item: Client) => ({
-              id: item.id,
-              name: item.name,
-              ip_address: item.ip_address,
-              private_key: item.private_key,
-              preshared_key: item.preshared_key,
-              received: item.received,
-              sent: item.sent,
-              config:
-                `[Interface]
-PrivateKey = ${item.private_key}
-Address = ${item.ip_address}/24
-DNS = 1.1.1.1, 8.8.8.8
-MTU = 1280
-
-[Peer]
-PublicKey = ${currentServers?.public_key}
-PresharedKey = ${item.preshared_key}
-AllowedIPs = 0.0.0.0/0
-Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
-`
-            })),
-          ]);
+        if (currentServers.id) {
+          const response = await fetch(`/api/server/${currentServers?.id}/peer`)
+          if (!response.ok) {
+            throw new Error("Failed to fetch peers")
+          }
+          const data = await response.json()
+          setClients([])
+          if (data && data.length > 0) {
+            setClients(prevClients => [
+              ...prevClients,
+              ...data.map((item: Client) => ({
+                id: item.id,
+                name: item.name,
+                ip_address: item.ip_address,
+                private_key: item.private_key,
+                preshared_key: item.preshared_key,
+                received: item.received,
+                sent: item.sent,
+                config:
+                  `[Interface]
+  PrivateKey = ${item.private_key}
+  Address = ${item.ip_address}/24
+  DNS = 1.1.1.1, 8.8.8.8
+  MTU = 1280
+  
+  [Peer]
+  PublicKey = ${currentServers?.public_key}
+  PresharedKey = ${item.preshared_key}
+  AllowedIPs = 0.0.0.0/0
+  Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
+  `
+              })),
+            ]);
+          }
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -406,30 +465,45 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
             <CardContent className="space-y-4">
               <div className="flex flex-wrap justify-between items-center gap-2">
                 <div className="w-full sm:w-[48%]">
-                  <Label htmlFor="serverIP">Server IP</Label>
+                  <Label htmlFor="public_ip">Server IP</Label>
                   <p className="text-sm text-muted-foreground">The IP address of the WireGuard server used for client connections.</p>
                 </div>
-                <Input id="serverIP" className="w-full sm:w-[200px]" value={currentServers?.public_ip || "-"} readOnly disabled />
+                <Input
+                  id="public_ip"
+                  className="w-full sm:w-[200px]"
+                  value={currentServers?.public_ip}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="flex flex-wrap justify-between items-center gap-2">
                 <div className="w-full sm:w-[48%]">
-                  <Label htmlFor="serverPort">Server Port</Label>
+                  <Label htmlFor="port">Server Port</Label>
                   <p className="text-sm text-muted-foreground">The port your WireGuard server listens on</p>
                 </div>
-                <Input id="serverPort" className="w-full sm:w-[200px]" value={currentServers?.port || "-"} readOnly disabled />
+                <Input
+                  id="port"
+                  className="w-full sm:w-[200px]"
+                  value={currentServers?.port}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="flex flex-wrap justify-between items-center gap-2">
                 <div className="w-full sm:w-[48%]">
-                  <Label htmlFor="dnsSetting">DNS Settings</Label>
+                  <Label htmlFor="dns">DNS Settings</Label>
                   <p className="text-sm text-muted-foreground">DNS servers for client devices</p>
                 </div>
-                <Input id="dnsSetting" className="w-full sm:w-[200px]" defaultValue="1.1.1.1, 1.0.0.1" />
+                <Input
+                  id="dns"
+                  className="w-full sm:w-[200px]"
+                  value={currentServers?.dns || "1.1.1.1"}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="pt-4">
-                <Button className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto" onClick={handleSubmit}>
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Apply Changes
                 </Button>

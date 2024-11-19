@@ -21,7 +21,7 @@ export async function PUT(
     }
 
     const data = await request.json()
-    const { name, port, status, ip_address } = data
+    const { name, port, status, ip_address, public_ip, dns } = data
     const serverId = params.id
     const server = await Server.findByPk(serverId)
 
@@ -32,11 +32,13 @@ export async function PUT(
       )
     }
 
-    const updateData: { name?: string, port?: number, status?: string, ip_address?: string } = {}
+    const updateData: { name?: string, port?: number, status?: string, ip_address?: string, public_ip?: string, dns?: string } = {}
 
     if (name) updateData.name = name
     if (port) updateData.port = port
     if (status) updateData.status = status
+    if (public_ip) updateData.public_ip = public_ip
+    if (dns) updateData.dns = dns
 
     if (ip_address) {
       const isValid = isValidIpAddress(ip_address)
