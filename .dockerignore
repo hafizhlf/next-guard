@@ -1,42 +1,40 @@
-# Node.js dependencies
-node_modules
-npm-debug.log
-yarn-error.log
-package-lock.json
-yarn.lock
+# Ignore node_modules directory
+app/node_modules
 
-# Build output
-.next
-out
+# Ignore build files (if you're running build locally)
+app/.next
 
-# Environment files
-.env
-.env.local
-.env.development
-.env.test
-.env.production
+# Ignore logs
+app/npm-debug.log*
+app/yarn-debug.log*
+app/yarn-error.log*
+app/pnpm-debug.log*
 
-# Logs
-*.log
+# Ignore .env files if not required in the image
+app/.env
+app/.env.local
+app/.env.production
+app/.env.production.local
+app/.env.development
+app/.env.development.local
 
-# OS files
-.DS_Store
-Thumbs.db
+# Ignore local directories or OS-specific files
+app/.DS_Store
+app/*.swp
+app/*.swo
 
-# IDE files
-.idea
+# Ignore test-related files
+app/coverage
+app/*.test.*
+app/*.spec.*
+app/jest.config.*
+app/.eslintcache
+app/.jest
+
+# Ignore database
+app/database
+
+# Ignore Git and IDE config files
+.git
+.gitignore
 .vscode
-*.sublime-workspace
-*.sublime-project
-
-# Test files
-coverage
-test-results
-
-# Temporary files
-*.tmp
-*.swp
-
-# Dockerfile and other config files for local dev (optional)
-docker-compose.yml
-Dockerfile.dev
