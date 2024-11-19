@@ -13,15 +13,10 @@ export async function GET() {
     await Server.sync({ alter: true })
     await Peer.sync({ alter: true })
 
-    const admin = await User.findOne({
-      where: {
-        username: "admin"
-      }
-    })
+    const user = await User.findOne()
 
-    const hashedPassword = await bcrypt.hash("admin", 10)
-
-    if (!admin) {
+    if (!user) {
+      const hashedPassword = await bcrypt.hash("admin", 10)
       await User.create({
         username: "admin",
         password: hashedPassword,
