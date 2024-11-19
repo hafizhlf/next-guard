@@ -97,8 +97,7 @@ MTU = 1280
 PublicKey = ${currentServers?.public_key}
 PresharedKey = ${data.preshared_key}
 AllowedIPs = 0.0.0.0/0
-Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
-`,
+Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
         },
       ])
       setNewClientName("")
@@ -288,17 +287,16 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
                 sent: item.sent,
                 config:
                   `[Interface]
-  PrivateKey = ${item.private_key}
-  Address = ${item.ip_address}/24
-  DNS = 1.1.1.1, 8.8.8.8
-  MTU = 1280
-  
-  [Peer]
-  PublicKey = ${currentServers?.public_key}
-  PresharedKey = ${item.preshared_key}
-  AllowedIPs = 0.0.0.0/0
-  Endpoint = ${currentServers?.public_ip}:${currentServers?.port}
-  `
+PrivateKey = ${item.private_key}
+Address = ${item.ip_address}/24
+DNS = ${currentServers?.dns || '1.1.1.1'}
+MTU = 1280
+
+[Peer]
+PublicKey = ${currentServers?.public_key}
+PresharedKey = ${item.preshared_key}
+AllowedIPs = 0.0.0.0/0
+Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
               })),
             ]);
           }
