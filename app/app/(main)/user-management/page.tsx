@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,7 +35,7 @@ export default function UserManagement() {
   const { toast } = useToast()
   const API_BASE_URL = '/api/users'
 
-  async function handleApiRequest<T>(url: string, method: string, data?: any): Promise<T> {
+  const handleApiRequest = useCallback(async (url: string, method: string, data?: Record<string, unknown>) => {
     try {
       const res = await fetch(url, {
         method,
@@ -43,31 +43,30 @@ export default function UserManagement() {
         body: data ? JSON.stringify(data) : undefined,
       })
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || `API request failed with status ${res.status}`)
+        const errorData = await res.json()
+        throw new Error(errorData?.error || `API request failed with status ${res.status}`)
       }
-      const response = await res.json()
-      console.log(response)
-      return response as T
+      const response = await res.json();
+      return response
     } catch (error) {
       if (error instanceof Error) {
         throw error
       }
       throw new Error("An unexpected error occurred during the API request.")
     }
-  }
+  }, [])
 
-  const handleError = (error: unknown) => {
+  const handleError = useCallback((error: unknown) => {
     toast({
       title: "Something wrong",
       description: error instanceof Error ? error.message : "An unexpected error occurred",
       variant: "destructive",
     })
-  }
+  }, [toast])
 
   const addUser = async () => {
     try {
-      const data = await handleApiRequest<User>(API_BASE_URL, "POST", newUser)
+      const data = await handleApiRequest(API_BASE_URL, "POST", newUser)
       setUsers([...users, data]);
       setNewUser({ name: "", username: "", password: "" });
       toast({ title: "User Added", description: `${newUser.name} has been added successfully.` })
@@ -82,14 +81,14 @@ export default function UserManagement() {
   const updateUser = async () => {
     try {
       if (!editingUser) { throw new Error("No user selected for editing"); }
-  
+
       const updateData = {
         ...(editingUser.name !== undefined && { name: editingUser.name }),
         ...(editingUser.password && { password: editingUser.password })
       }
-      await handleApiRequest<User>(`${API_BASE_URL}/${editingUser.id}`, "PUT", updateData)
-  
-  
+      await handleApiRequest(`${API_BASE_URL}/${editingUser.id}`, "PUT", updateData)
+
+
       setUsers(users.map(user => user.id === editingUser.id ? { ...user, ...updateData } : user))
       setEditingUser(null)
       await update()
@@ -99,22 +98,22 @@ export default function UserManagement() {
 
   const deleteUser = async (id: number) => {
     try {
-      await handleApiRequest<User>(`${API_BASE_URL}/${id}`, "DELETE")
+      await handleApiRequest(`${API_BASE_URL}/${id}`, "DELETE")
       setUsers(users.filter(user => user.id !== id))
-      toast({ title: "User Deleted", description: "User deleted successfully."})
+      toast({ title: "User Deleted", description: "User deleted successfully." })
     } catch (error) { handleError(error) }
   }
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await handleApiRequest<User[]>(API_BASE_URL, "GET")
+        const data = await handleApiRequest(API_BASE_URL, "GET")
         setUsers(data)
       } catch (error) { handleError(error) }
     }
 
     fetchUsers()
-  }, [toast])
+  }, [handleApiRequest, handleError])
 
   return (
     <div className="container mx-auto p-4">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,7 +25,7 @@ export default function ServerManagement() {
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
 
-  const handleApiRequest = async (url: string, options: RequestInit) => {
+  const handleApiRequest = useCallback(async (url: string, options: RequestInit) => {
     try {
       const res = await fetch(url, options)
       if (!res.ok) {
@@ -41,7 +41,7 @@ export default function ServerManagement() {
       })
       return null
     }
-  }
+  }, [toast])
 
   const addServer = async () => {
     const data = await handleApiRequest("/api/server", {
@@ -116,7 +116,7 @@ export default function ServerManagement() {
     }
 
     fetchServers()
-  }, [])
+  }, [handleApiRequest])
 
   return (
     <div className="container mx-auto p-4">
