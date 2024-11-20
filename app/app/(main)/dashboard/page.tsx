@@ -28,7 +28,6 @@ interface Client {
   preshared_key: string
   received: string
   sent: string
-  config: string
 }
 
 interface Server {
@@ -41,22 +40,25 @@ interface Server {
   dns: string
 }
 
+interface ServerUpdate {
+  id?: string;
+  name?: string;
+  ip_address?: string;
+  port?: number;
+  public_key?: number;
+  public_ip?: string;
+  dns?: string;
+}
+
 export default function WireGuardDashboard() {
   const [clients, setClients] = useState<Client[]>([])
   const [servers, setServers] = useState<Server[]>([])
-  const [currentServers, setCurrentServers] = useState<Server>({
-    id: "",
-    name: "",
-    ip_address: "",
-    port: 0,
-    public_key: 0,
-    public_ip: "",
-    dns: "",
-  })
+  const [currentServer, setCurrentServer] = useState<Server | null>(null)
   const [newClientName, setNewClientName] = useState("")
   const { toast } = useToast()
 
   const addClient = async () => {
+    if (!currentServer) return
     try {
       const res = await fetch("/api/peer", {
         method: "POST",
@@ -65,7 +67,7 @@ export default function WireGuardDashboard() {
         },
         body: JSON.stringify({
           name: newClientName,
-          server_id: currentServers?.id,
+          server_id: currentServer?.id,
         }),
       })
 
@@ -86,22 +88,10 @@ export default function WireGuardDashboard() {
           preshared_key: data.preshared_key,
           received: "0.00 KB",
           sent: "0.00 KB",
-          config:
-            `[Interface]
-PrivateKey = ${data.private_key}
-Address = ${data.ip_address}/24
-DNS = ${currentServers?.dns || '1.1.1.1'}
-MTU = 1280
-
-[Peer]
-PublicKey = ${currentServers?.public_key}
-PresharedKey = ${data.preshared_key}
-AllowedIPs = 0.0.0.0/0
-Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
         },
       ])
       setNewClientName("")
-      const res_reload = await fetch(`/api/server/${currentServers?.id}/reload`, {
+      const res_reload = await fetch(`/api/server/${currentServer?.id}/reload`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -133,6 +123,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
   }
 
   const deletePeer = async (peerId: number) => {
+    if (!currentServer) return
     try {
       const res = await fetch(`/api/peer/${peerId}`, {
         method: "DELETE",
@@ -149,7 +140,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
       const data = await res.json()
 
       setClients(clients.filter(client => client.id !== peerId))
-      const res_reload = await fetch(`/api/server/${currentServers?.id}/reload`, {
+      const res_reload = await fetch(`/api/server/${currentServer?.id}/reload`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -182,29 +173,45 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
 
   const getServerData = useCallback((serverId: string) => {
     const selectedServer = servers.find(server => server.id === serverId)
-    if (selectedServer) {
-      setCurrentServers(selectedServer)
-    }
+    setCurrentServer(selectedServer || null)
   }, [servers])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
+    if (!currentServer) return
 
-    setCurrentServers((prevSettings) => ({
-      ...prevSettings,
-      [id]: value
-    }))
+    setCurrentServer(prevServer => {
+      const key = e.target.id as keyof ServerUpdate
+      if (!prevServer) return null
+      if (!(key in prevServer)) {
+        return prevServer
+      }
+      let value: string | number | undefined;
+       if (key === "port") {
+         const parsed = parseInt(e.target.value, 10);
+          if (!isNaN(parsed) ) {
+              value = parsed;
+          }
+      } else {
+          value = e.target.value
+      }
+      const updatedServer: Server = {
+        ...prevServer,
+             [key]: value,
+      }
+      return updatedServer
+    })
   }
 
   const handleSubmit = async () => {
+    if (!currentServer) return
     const updateData: { public_ip?: string, port?: number, dns?: string } = {}
 
-    if (currentServers?.public_ip) updateData.public_ip = currentServers.public_ip
-    if (currentServers?.port) updateData.port = currentServers.port
-    if (currentServers?.dns) updateData.dns = currentServers.dns
+    if (currentServer?.public_ip) updateData.public_ip = currentServer.public_ip
+    if (currentServer?.port) updateData.port = currentServer.port
+    if (currentServer?.dns) updateData.dns = currentServer.dns
 
     try {
-      const res = await fetch(`/api/server/${currentServers?.id}`, {
+      await fetch(`/api/server/${currentServer?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -212,11 +219,9 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
         body: JSON.stringify(updateData),
       })
 
-      const data = await res.json()
-
       toast({
-        title: "Server configuration updated",
-        description: data.message,
+        title: "Changes Applied",
+        description: "Server configuration updated",
       })
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -266,40 +271,27 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`,
 
   useEffect(() => {
     const fetchPeers = async () => {
+      if (!currentServer) return
       try {
-        if (currentServers.id) {
-          const response = await fetch(`/api/server/${currentServers?.id}/peer`)
-          if (!response.ok) {
-            throw new Error("Failed to fetch peers")
-          }
-          const data = await response.json()
-          setClients([])
-          if (data && data.length > 0) {
-            setClients(prevClients => [
-              ...prevClients,
-              ...data.map((item: Client) => ({
-                id: item.id,
-                name: item.name,
-                ip_address: item.ip_address,
-                private_key: item.private_key,
-                preshared_key: item.preshared_key,
-                received: item.received,
-                sent: item.sent,
-                config:
-                  `[Interface]
-PrivateKey = ${item.private_key}
-Address = ${item.ip_address}/24
-DNS = ${currentServers?.dns || '1.1.1.1'}
-MTU = 1280
-
-[Peer]
-PublicKey = ${currentServers?.public_key}
-PresharedKey = ${item.preshared_key}
-AllowedIPs = 0.0.0.0/0
-Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
-              })),
-            ]);
-          }
+        const response = await fetch(`/api/server/${currentServer.id}/peer`)
+        if (!response.ok) {
+          throw new Error("Failed to fetch peers")
+        }
+        const data = await response.json()
+        setClients([])
+        if (data && data.length > 0) {
+          setClients(prevClients => [
+            ...prevClients,
+            ...data.map((item: Client) => ({
+              id: item.id,
+              name: item.name,
+              ip_address: item.ip_address,
+              private_key: item.private_key,
+              preshared_key: item.preshared_key,
+              received: item.received,
+              sent: item.sent,
+            })),
+          ]);
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -318,18 +310,34 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
       }
     }
 
-    if (currentServers) {
+    if (currentServer) {
       fetchPeers()
       const intervalId = setInterval(fetchPeers, 5000)
       return () => clearInterval(intervalId)
     }
-  }, [currentServers, toast])
+  }, [currentServer, toast])
 
   useEffect(() => {
     if (servers.length > 0) {
       getServerData(servers[0].id)
     }
   }, [servers, getServerData])
+
+  const getClientConfig = (client: Client) => {
+    if (!currentServer) return "";
+
+    return `[Interface]
+PrivateKey = ${client.private_key}
+Address = ${client.ip_address}/24
+DNS = ${currentServer.dns || '1.1.1.1'}
+MTU = 1280
+
+[Peer]
+PublicKey = ${currentServer.public_key}
+PresharedKey = ${client.preshared_key}
+AllowedIPs = 0.0.0.0/0
+Endpoint = ${currentServer.public_ip}:${currentServer.port}`;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -346,7 +354,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
         </TabsList>
 
         <div className="sm:text-right mb-4 float-none sm:float-right">
-          <Select value={currentServers?.id} onValueChange={getServerData}>
+          <Select value={currentServer?.id} onValueChange={getServerData}>
             <SelectTrigger className="w-full sm:w-[250px]">
               <SelectValue placeholder="Select a server" />
             </SelectTrigger>
@@ -436,7 +444,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
                                 <DialogTitle>QR Code</DialogTitle>
                                 <DialogDescription>Scan the QR code for client details.</DialogDescription>
                                 <div className="flex justify-center">
-                                  <QRCodeSVG value={client.config} size={256} />
+                                  <QRCodeSVG value={getClientConfig(client)} size={256} />
                                 </div>
                               </DialogContent>
                             </Dialog>
@@ -469,7 +477,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
                 <Input
                   id="public_ip"
                   className="w-full sm:w-[200px]"
-                  value={currentServers?.public_ip}
+                  value={currentServer?.public_ip}
                   onChange={handleChange}
                 />
               </div>
@@ -482,7 +490,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
                 <Input
                   id="port"
                   className="w-full sm:w-[200px]"
-                  value={currentServers?.port}
+                  value={currentServer?.port}
                   onChange={handleChange}
                 />
               </div>
@@ -495,7 +503,7 @@ Endpoint = ${currentServers?.public_ip}:${currentServers?.port}`
                 <Input
                   id="dns"
                   className="w-full sm:w-[200px]"
-                  value={currentServers?.dns || "1.1.1.1"}
+                  value={currentServer?.dns || "1.1.1.1"}
                   onChange={handleChange}
                 />
               </div>
