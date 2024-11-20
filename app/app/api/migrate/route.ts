@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { DatabaseError } from "sequelize"
-import bcrypt from 'bcryptjs'
+import createUser from "@/lib/auth"
 import User from 'models/user'
 
 export const dynamic = 'force-dynamic'
@@ -10,12 +10,7 @@ export async function GET() {
     const user = await User.findOne()
 
     if (!user) {
-      const hashedPassword = await bcrypt.hash("admin", 10)
-      await User.create({
-        username: "admin",
-        password: hashedPassword,
-        name: "Administrator",
-      })
+      await createUser("admin", "admin", "Administrator")
     }
 
     return NextResponse.json({
