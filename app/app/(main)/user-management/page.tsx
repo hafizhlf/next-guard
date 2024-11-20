@@ -24,7 +24,7 @@ type User = {
   id: number
   username: string
   name: string
-  password: string
+  password?: string
 }
 
 export default function UserManagement() {
@@ -33,49 +33,45 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const { update } = useSession()
   const { toast } = useToast()
+  const API_BASE_URL = '/api/users'
+
+  async function handleApiRequest<T>(url: string, method: string, data?: any): Promise<T> {
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: data ? JSON.stringify(data) : undefined,
+      })
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || `API request failed with status ${res.status}`)
+      }
+      const response = await res.json()
+      console.log(response)
+      return response as T
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error("An unexpected error occurred during the API request.")
+    }
+  }
+
+  const handleError = (error: unknown) => {
+    toast({
+      title: "Something wrong",
+      description: error instanceof Error ? error.message : "An unexpected error occurred",
+      variant: "destructive",
+    })
+  }
 
   const addUser = async () => {
     try {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newUser.name,
-          username: newUser.username,
-          password: newUser.password,
-        }),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Error creating user")
-      }
-
-      const data = await res.json()
-
-      setUsers([...users, { ...newUser, id: data.id, password: "" }])
-      setNewUser({ name: "", username: "", password: "" })
-      toast({
-        title: "User Added",
-        description: `${newUser.name} has been added successfully.`,
-      })
-
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
-    }
+      const data = await handleApiRequest<User>(API_BASE_URL, "POST", newUser)
+      setUsers([...users, data]);
+      setNewUser({ name: "", username: "", password: "" });
+      toast({ title: "User Added", description: `${newUser.name} has been added successfully.` })
+    } catch (error) { handleError(error) }
   }
 
   const editUser = (id: number) => {
@@ -85,127 +81,36 @@ export default function UserManagement() {
 
   const updateUser = async () => {
     try {
-      // Only send password if it"s being changed
-      const updateData: { name?: string, password?: string } = {}
-
-      if (!editingUser) {
-        throw new Error("No user selected for editing")
+      if (!editingUser) { throw new Error("No user selected for editing"); }
+  
+      const updateData = {
+        ...(editingUser.name !== undefined && { name: editingUser.name }),
+        ...(editingUser.password && { password: editingUser.password })
       }
-
-      if (editingUser?.name) {
-        updateData.name = editingUser.name
-      }
-
-      if (editingUser?.password) {
-        updateData.password = editingUser.password
-      }
-
-      const res = await fetch(`/api/users/${editingUser?.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to update user")
-      }
-
-      const user: User = editingUser
-      user.password = ""
-      setEditingUser(user)
-      await update()
-      setUsers(users.map(user => user.id === editingUser?.id ? editingUser : user))
+      await handleApiRequest<User>(`${API_BASE_URL}/${editingUser.id}`, "PUT", updateData)
+  
+  
+      setUsers(users.map(user => user.id === editingUser.id ? { ...user, ...updateData } : user))
       setEditingUser(null)
-      toast({
-        title: "User Updated",
-        description: `${editingUser?.name}"s information has been updated.`,
-      })
-
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
-    }
+      await update()
+      toast({ title: "User Updated", description: `${editingUser.name}'s information has been updated.` })
+    } catch (error) { handleError(error) }
   }
 
   const deleteUser = async (id: number) => {
     try {
-      // if (session?.user.id === id.toString()) {
-      //   throw new Error("User ID matches the session user ID.")
-      // }
-      const res = await fetch(`/api/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to delete user")
-      }
-
-      const data = await res.json()
-
+      await handleApiRequest<User>(`${API_BASE_URL}/${id}`, "DELETE")
       setUsers(users.filter(user => user.id !== id))
-      toast({
-        title: "User Deleted",
-        description: data.message,
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
-    }
+      toast({ title: "User Deleted", description: "User deleted successfully."})
+    } catch (error) { handleError(error) }
   }
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("/api/users")
-        if (!response.ok) {
-          throw new Error("Failed to fetch users")
-        }
-        const data = await response.json()
+        const data = await handleApiRequest<User[]>(API_BASE_URL, "GET")
         setUsers(data)
-      } catch (err) {
-        if (err instanceof Error) {
-          toast({
-            title: "An error occurred",
-            description: err.message,
-            variant: "destructive",
-          })
-        } else {
-          toast({
-            title: "Something wrong",
-            description: "An unexpected error occurred",
-            variant: "destructive",
-          })
-        }
-      }
+      } catch (error) { handleError(error) }
     }
 
     fetchUsers()

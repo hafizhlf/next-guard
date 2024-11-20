@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     // Create user
-    const userWithoutPassword = createUser(username, password, name)
+    const userWithoutPassword = await createUser(username, password, name)
 
     return NextResponse.json(userWithoutPassword, { status: 201 })
   } catch (error) {
