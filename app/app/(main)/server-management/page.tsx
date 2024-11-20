@@ -18,58 +18,42 @@ interface Server {
   status: string
 }
 
-export default function WireGuardDashboard() {
+
+export default function ServerManagement() {
   const [servers, setServers] = useState<Server[]>([])
   const [newServer, setNewServer] = useState<Omit<Server, "id" | "clients">>({ name: "", ip_address: "", port: 51820, status: "Offline" })
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const { toast } = useToast()
 
-  const addServer = async () => {
+  const handleApiRequest = async (url: string, options: RequestInit) => {
     try {
-      const res = await fetch("/api/server", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newServer.name,
-          ip_address: newServer.ip_address,
-          port: newServer.port,
-        }),
-      })
+      const res = await fetch(url, options)
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Error creating server")
+        throw new Error(data.error || "API request failed")
       }
-
-      const data = await res.json()
-
-      const newServerWithId: Server = {
-        ...newServer,
-        id: data.id,
-        ip_address: data.ip_address,
-        port: data.port,
-      }
-      setServers([...servers, newServerWithId])
-      setNewServer({ name: "", ip_address: "", port: 51820, status: "Offline" })
+      return await res.json()
+    } catch (error) {
       toast({
-        title: "Server Added",
-        description: `${data.name} has been added successfully.`,
+        title: "Error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive",
       })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
+      return null
+    }
+  }
+
+  const addServer = async () => {
+    const data = await handleApiRequest("/api/server", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newServer),
+    })
+
+    if (data) {
+      setServers([...servers, data])
+      setNewServer({ name: "", ip_address: "", port: 51820, status: "Offline" })
+      toast({ title: "Server Added", description: `${data.name} has been added successfully.` })
     }
   }
 
@@ -81,172 +65,58 @@ export default function WireGuardDashboard() {
   }
 
   const updateServer = async () => {
-    try {
-      const updateData: { name?: string, port?: number, ip_address?: string } = {}
+    if (!editingServer) return
 
-      if (!editingServer) {
-        throw new Error("No server selected for editing")
-      }
+    const data = await handleApiRequest(`/api/server/${editingServer.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingServer),
+    })
 
-      if (editingServer?.name) updateData.name = editingServer.name
-      if (editingServer?.ip_address) updateData.ip_address = editingServer.ip_address
-      if (editingServer?.port) updateData.port = editingServer.port
-
-      const res = await fetch(`/api/server/${editingServer?.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to update server")
-      }
-
-      const data = await res.json()
-
-      setServers(servers.map(server =>
-        server.id === data.id ? data : server
-      ))
+    if (data) {
+      setServers(servers.map((server) => (server.id === data.id ? data : server)))
       setEditingServer(null)
-
-      toast({
-        title: "Server Updated",
-        description: `${data.name}"s information has been updated.`,
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
+      toast({ title: "Server Updated", description: `${data.name}'s information has been updated.` })
     }
   }
 
   const deleteServer = async (id: number) => {
-    try {
-      const res = await fetch(`/api/server/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to delete server")
-      }
-
-      const data = await res.json()
-
-      setServers(servers.filter(server => server.id !== id))
-      toast({
-        title: "Server Deleted",
-        description: data.message,
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
+    const data = await handleApiRequest(`/api/server/${id}`, { method: "DELETE" })
+    if (data) {
+      setServers(servers.filter((server) => server.id !== id));
+      toast({ title: "Server Deleted", description: data.message });
     }
   }
 
   const toggleServerStatus = async (id: number) => {
-    try {
-      const updateData: { status?: string } = {}
+    const server = servers.find((s) => s.id === id)
+    if (!server) return
 
-      const server = servers.find((s) => s.id === id)
-      updateData.status = server?.status === "Online" ? "Offline" : "Online"
+    const updatedServer = { ...server, status: server.status === "Online" ? "Offline" : "Online" }
 
-      const res = await fetch(`/api/server/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
+    const data = await handleApiRequest(`/api/server/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: updatedServer.status }),
+    })
 
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to update server")
-      }
-
-      const data = await res.json()
-
-      setServers(servers.map(server =>
-        server.id === data.id ? data : server
-      ))
-      setEditingServer(null)
-
+    if (data) {
+      setServers(servers.map((s) => (s.id === id ? data : s)));
       toast({
-        title: "Server Updated",
-        description: `${data.name}"s information has been updated.`,
+          title: "Server Updated",
+          description: `${data.name}'s status has been updated.`,
       })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          title: "Something wrong",
-          description: error.message,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Something wrong",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        })
-      }
     }
   }
 
   useEffect(() => {
     const fetchServers = async () => {
-      try {
-        const response = await fetch("/api/server")
-        if (!response.ok) {
-          throw new Error("Failed to fetch servers")
-        }
-        const data = await response.json()
-        setServers(data)
-      } catch (err) {
-        if (err instanceof Error) {
-          toast({
-            title: "An error occurred",
-            description: err.message,
-            variant: "destructive",
-          })
-        } else {
-          toast({
-            title: "Something wrong",
-            description: "An unexpected error occurred",
-            variant: "destructive",
-          })
-        }
-      }
+      const data = await handleApiRequest("/api/server", {});
+      if (data) setServers(data);
     }
 
     fetchServers()
-  }, [toast])
+  }, [])
 
   return (
     <div className="container mx-auto p-4">

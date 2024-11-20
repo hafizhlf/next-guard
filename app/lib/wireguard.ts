@@ -199,7 +199,8 @@ export async function stopWireguardServer(filename: string): Promise<void> {
   try {
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
-      throw new Error('Configuration file does not exist');
+      console.log(`Configuration file ${filename} does not exist, skipping.`)
+      return
     }
 
     // Check if WireGuard server is already stopped
