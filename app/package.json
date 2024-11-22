@@ -1,6 +1,6 @@
 {
-  "name": "wireguard-ui",
-  "version": "0.1.0",
+  "name": "next-guard",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "tsx wireguard.ts && next dev --turbo",
