@@ -1,4 +1,4 @@
-FROM docker.io/library/node:lts-bookworm AS build_node_modules
+FROM docker.io/library/node:lts-bookworm-slim AS build_node_modules
 
 COPY /app /app
 WORKDIR /app
@@ -6,7 +6,7 @@ RUN npm install
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM docker.io/library/node:lts-bookworm
+FROM docker.io/library/node:lts-bookworm-slim
 COPY --from=build_node_modules /app /app
 
 RUN apt update \
